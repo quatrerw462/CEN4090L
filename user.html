@@ -1,0 +1,44 @@
+<!-- based off of player.html document provided by dr works -->
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+<body data-gr-c-s-loaded="true" style="margin: 0px;">
+    {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+         {% endif %}
+    {% endwith %}
+
+{% if session['logged_in'] and (session['admin']==2 or session['admin']==3) %}
+<!-- creation of form to feed into addrec -->     
+      <form action="{{ url_for('addrec') }}"  method="POST">
+         <h3>Hospital App User Information</h3>
+         Name<br>
+         <input type="text" name="Name" ><br>
+         
+         Age<br>
+         <input type="text" name="Age"><br>
+
+         Phone Number<br>
+         <input type="text" name="PhoneNumber"><br>
+		 
+		 Has COVID
+		 <input type ="checkbox" name="COVID" value = "1"><br>
+		 
+		 Security Role Level<br>
+         <input type="text" name="SecurityLevel"><br>
+         
+         Login Password<br>
+         <input type="password" name="Password"><br>
+         <input type="submit" value="submit"><br>
+      </form>
+      
+   
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!-- based off of player.html document provided by dr works -->
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+<body data-gr-c-s-loaded="true" style="margin: 0px;">
+    {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+         {% endif %}
+    {% endwith %}
+
+<!-- creation of form to feed into addrec -->     
+      <form action="{{ url_for('addrec') }}"  method="POST">
+         <h3>Create Account</h3>
+         Name<br>
+         <input type="text" name="Name" ><br><br>
+         
+         Phone Number<br>
+         <input type="text" name="PhoneNumber"><br><br>
+		 
+		 Address<br>
+		 <input type ="text" name="Address"><br><br>
+		 <!-- add functionality to determine closest libary based on address -->  
+		 
+		 Local Library<br>
+		 <input type ="text" name="LocalLibrary"><br><br>
+		 
+		 Security Role Level<br>		 <!-- temporary for debugging purposes, be sure to delete -->  
+         <input type="text" name="SecurityLevel"><br><br>
+		 
+         Login Password<br>
+         <input type="password" name="Password"><br><br>
+         <input type="submit" value="submit"><br>
+      </form>
+      
+   
+
+</body>
+</html>

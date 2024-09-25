@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!-- based off of home.html document provided by dr works -->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+<body data-gr-c-s-loaded="true" style="margin: 0px;">
+  {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+         {% endif %}
+    {% endwith %}
+
+{% if session['logged_in'] %}
+    <h1>Welcome {{name}}, your Local Library is {{UserLocalLibrary}} </h1>
+	<h2><a href="/showUser">Show Library User</a></h2>
+	<h2><a href="/loans">View Your Borrowed Materials</a></h2>
+	<h2><a href="/checkOut">Check Out Materials</a></h2>
+        {% if session['admin'] == 2 or session['admin'] == 3 %} 
+			<h2><a href="/enternew">Add/remove material to/from inventory</a></h2>
+			<h2><a href="/list">View loaned material by {{UserLocalLibrary}}</a></h2>
+		{% endif %}
+		{% if session['admin'] == 3 %} 
+			<h2><a href="/list">Add/Remove library to/from network</a></h2>
+		{% endif %}
+	  <h2><a href="/logout">Log out</a></h2>
+{% endif %}
+
+	  <!--a href = anchor, creates link to route in quotes. both /enternew and /list
+	  have routes defined in newHospitalUsers program, which route to corresponding htmls-->
+      
+   
+
+</body></html>

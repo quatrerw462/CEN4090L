@@ -17,21 +17,35 @@
 <!-- creation of form to feed into addrec -->     
       <form action="{{ url_for('addrec') }}"  method="POST">
          <h3>Create Account</h3>
-         Name<br>
-         <input type="text" name="Name" ><br><br>
+         First Name<br>
+         <input type="text" name="FirstName" ><br><br>
+
+         Last Name<br>
+         <input type="text" name="LastName" ><br><br>
+
+         Username<br>
+         <input type="text" name="UserName" ><br><br>
          
          Phone Number<br>
          <input type="text" name="PhoneNumber"><br><br>
 		 
 		 Address<br>
 		 <input type ="text" name="Address"><br><br>
-		 <!-- add functionality to determine closest libary based on address -->  
-		 
+
+         City<br>
+         <input type ="text" name="City"><br><br>
+
+         State<br>
+         <input type ="text" name="State"><br><br>
+
+         Zip<br>
+         <input type ="text" name="Zip"><br><br>
+		 <!-- add functionality to determine closest libary based on address -->
+
+         <!--Security Level field was removed. Minor change by Pablo-->
+
 		 Local Library<br>
 		 <input type ="text" name="LocalLibrary"><br><br>
-		 
-		 Security Role Level<br>		 <!-- temporary for debugging purposes, be sure to delete -->  
-         <input type="text" name="SecurityLevel"><br><br>
 		 
          Login Password<br>
          <input type="password" name="Password"><br><br>

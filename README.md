@@ -2,10 +2,17 @@
 
 <h3>Update (October 17th):</h3>
 - Removed users' ability to choose their security level when creating a new account.
+
 - Users' security level is now 1 by default, and they can only get a higher level by filling out a security upgrade request form.
+  
 - Requests can only be seen, accepted, and rejected by level 3 users.
+  
 - Fixed issue in the listing of loans, where users who checked out their books would have their names encrypted on display.
+  
 - Updated SQL table schemas, and changed code to reflect these changes.
+  
 - Users can now specify extra fields when creating an account, such as their first and last name, as well as their city, state, and zip code.
+  
 - Added search function for database. Not implemented into the website for easy access, but a preliminary version is up and running. Type '/search' after the URL to test it out.
+  
 - All code in this update written by Pablo and Shawnie. Merged together and pushed into repository by Pablo.

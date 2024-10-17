@@ -1,6 +1,7 @@
 <h3>Running on Python 3.12</h3>
 
 <h3>Update (October 17th):</h3>
+
 - Removed users' ability to choose their security level when creating a new account.
 
 - Users' security level is now 1 by default, and they can only get a higher level by filling out a security upgrade request form.

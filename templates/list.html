@@ -22,7 +22,8 @@ need to also make sure they cant access page by typing in route directly into br
       <table border="1">
          <thead>
             <tr><td>Book</td>
-            <td>User who checked out book</td>
+            <td>First name of user who checked out book</td>
+            <td>Last name of user who checked out book</td>
             <td>Library where book was checked out from</td>
 			<td>Date checked out</td>
 			<td>Date Due Back</td>
@@ -30,11 +31,12 @@ need to also make sure they cant access page by typing in route directly into br
           <tbody>
           {% for index, row in rows.iterrows() %} <!-- loop through table and print info in various rows-->
           <tr>
-               <td>{{row["b.BookName"]}}</td>
-               <td>{{row["u.UserName"]}}</td>
-               <td> {{row["b.LibraryLocation"]}}</td>
-               <td>{{row["l.CheckedOut"]}}</td>
-			   <td>{{row["l.ReturnBy"]}}</td>
+               <td>{{row["b.bookName"]}}</td>
+               <td>{{row["u.firstName"]}}</td>
+               <td>{{row["u.lastName"]}}</td>
+               <td> {{row["lib.libraryName"]}}</td>
+               <td>{{row["lo.checkedOut"]}}</td>
+			   <td>{{row["lo.returnBy"]}}</td>
             </tr>
       {% endfor %}
           </tbody>

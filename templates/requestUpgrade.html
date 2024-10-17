@@ -1,0 +1,102 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <title>Request Security Level Upgrade</title>
+    <style>
+        #invQuestion, #netQuestion {
+            display: none;
+        }
+    </style>
+</head>
+
+<body data-gr-c-s-loaded="true" style="margin: 0px;">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form id="userForm" action="{{ url_for('addRequest') }}" method="POST">
+        <h1>Security Role Level Upgrade Request Form</h1>
+
+        <!-- If a user is level 2, choosing a level is not needed, they'll automatically upgrade to 3-->
+        {% if session['admin'] == 1 %}
+            What security role level do you want to upgrade to?<br>
+            <input type="radio" id="level2" name="levelChoice" value="2" required="true" />
+            <label for="level2">Level 2</label><br>
+
+            <input type="radio" id="level3" name="levelChoice" value="3" required="true" />
+            <label for="level3">Level 3</label><br><br>
+        {% endif %}
+
+        Why do you want to upgrade your security role?<br>
+        <textarea name="Reason" rows="4" cols="50" required="true"></textarea>
+        <br><br>
+
+        <!--Experience questions are dynamically shown depending on a user's level choice-->
+        {% if session['admin'] == 1 %}
+            <div id="invQuestion">
+                What experience do you have with managing inventories?<br>
+                <textarea name="InvExperience" rows="4" cols="50" required="true"></textarea>
+                <br><br>
+            </div>
+
+            <div id="netQuestion">
+                What experience do you have with managing library networks?<br>
+                <textarea name="NetExperience" rows="4" cols="50" required="true"></textarea>
+                <br><br>
+            </div>
+        {% else %}
+            What experience do you have with managing library networks?<br>
+            <textarea name="NetExperience" rows="4" cols="50" required="true"></textarea>
+            <br><br>
+        {% endif %}
+
+        What tasks will you handle with the new privileges you would be given?<br>
+        <textarea name="Tasks" rows="4" cols="50" required="true"></textarea>
+        <br><br>
+
+        "On the prospect of my security role being raised, I hereby pledge<br>
+        to make full use of my newfound extra privileges <b><i>responsibly</i></b><br>
+        to help this library network be managed more effectively,<br>
+        and I understand that any mistakes can result in my security<br>
+        role being downgraded if severe enough."
+        <br>
+        <input type="checkbox" id="agreement" name="Agreement" value="1" required="true">
+        <label for="agreement"><b>I agree to the statement above</b></label><br><br>
+
+        <!--All fields are required-->
+        <input type="submit" value="Submit"><br>
+    </form>
+
+    <!--JavaScript code for the experience questions-->
+    <script>
+        const form = document.getElementById('userForm');
+        const invQuestion = document.getElementById('invQuestion');
+        const invTextarea = invQuestion.querySelector('textarea');
+        const netQuestion = document.getElementById('netQuestion');
+        const netTextarea = netQuestion.querySelector('textarea');
+
+        form.addEventListener('change', function(event) {
+            if (event.target.name === 'levelChoice') {
+                invQuestion.style.display = 'block';
+                invTextarea.required = true;
+
+                if (event.target.value === '3') {
+                    netQuestion.style.display = 'block';
+                    netTextarea.required = true;
+                } else {
+                    netQuestion.style.display = 'none';
+                    netTextarea.required = false;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

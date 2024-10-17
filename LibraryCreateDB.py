@@ -1,17 +1,12 @@
-"""
-Name: Josh Knorr
-Date: 10/25/2023
-Assignment: Module 8: Send Authenticated Message.
-Due Date:10/22/2023
-About this project: The purpose of this project is to add log in and role based access control to previous assignment.
-In this version, certain security levels have access to certain functions, while others do not. The program reads in
-the users security access level based on inputted user name, matching it to sql table.
-Assumptions: Assumes HospitalUsers table is created before users run Update script. Assumes UserTestResults table is
-created before users run script. Assume users run HMAC and Test Result server.
-All work below was performed by Josh Knorr, with code inspired by Dr Works CrapsDB example
-Some code recycled from previous assignments of this course by Josh Knorr. Some code provided by Dr Works
-"""
+# October 16th merge update:
+# Majority of this file replaced by Shawnie's version.
+# Table schemas have been updated to their latest version according to the Project Tracking spreadsheet.
+# Initial version written by Joshua.
+# Second version written by Shawnie.
+# Merging into project and additional changes by Pablo.
+
 import sqlite3
+from datetime import datetime, timedelta
 import Encryption
 
 key = b'\x89\xcc\x01y\xfd\xbd\xcd=Gv\x99m\xa5\x9f?f\x02\x86\xc9#\xea\xf7\xc3e\xd6\xa0\t\x06D\xad<\x84'
@@ -19,16 +14,9 @@ iv = b'w\xdb^K%\\\xf5,`\xc7\xbb\xabs\x1f\x06\x16'
 
 cipher = Encryption.AESCipher(key,iv)
 
-#create new DB, or if already created connect to it
-
+# Connect to SQLite database
 conn = sqlite3.connect('Library.db')
-
-#create cursor to execute queries
-
 cur = conn.cursor()
-
-#drop table from database if exists - try catch block
-
 
 try:
     conn.execute('''Drop table Books''')
@@ -54,109 +42,179 @@ try:
 except:
     print('Loans table did not exist')
 
+try:
+    conn.execute('''Drop table UpgradeReqs''')
+    #save changes
+    conn.commit()
+    print('UpgradeReqs table dropped')
+except:
+    print('UpgradeReqs table did not exist')
 
-# create table in database
-cur.execute('''CREATE TABLE Books(
-BookId INTEGER PRIMARY KEY NOT NULL,
-BookName TEXT NOT NULL,
-ISBN13 INTEGER NOT NULL,
-Author TEXT NOT NULL,
-Publisher TEXT NOT NULL,
-CheckedOut BOOLEAN NOT NULL,
-LibraryLocation TEXT NOT NULL,
-DeweyDecimal TEXT NOT NULL);
+try:
+    conn.execute('''Drop table Libraries''')
+    #save changes
+    conn.commit()
+    print('Libraries table dropped')
+except:
+    print('Libraries table did not exist')
+
+
+# Create tables
+cur.execute('''
+CREATE TABLE IF NOT EXISTS Books (
+    bookID INTEGER PRIMARY KEY AUTOINCREMENT,
+    libraryID INTEGER,
+    bookName TEXT COLLATE NOCASE NOT NULL,
+    author TEXT COLLATE NOCASE,
+    publisher TEXT,
+    isbn13 TEXT,
+    description TEXT,
+    genre TEXT COLLATE NOCASE,
+    dewey TEXT,
+    FOREIGN KEY (libraryID) REFERENCES Libraries(libraryID)
+)
 ''')
 
-cur.execute('''CREATE TABLE LibUsers(
-UserId INTEGER PRIMARY KEY NOT NULL,
-UserName TEXT NOT NULL,
-UserPhNum TEXT NOT NULL,
-UserAddress TEXT NOT NULL,
-UserLocalLibrary TEXT NOT NULL,
-SecurityLevel INTEGER NOT NULL,
-LoginPassword TEXT NOT NULL);
+cur.execute('''
+CREATE TABLE IF NOT EXISTS LibUsers (
+    userLogon TEXT PRIMARY KEY NOT NULL,
+    libraryID INTEGER,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    phoneNum TEXT NOT NULL,
+    userAddress TEXT NOT NULL,
+    userCity TEXT NOT NULL,
+    userState TEXT NOT NULL,
+    userZip TEXT NOT NULL,
+    securityLevel INTEGER NOT NULL,
+    password TEXT NOT NULL,
+    FOREIGN KEY (libraryID) REFERENCES Libraries(libraryID)
+)
 ''')
 
-cur.execute('''CREATE TABLE Loans(
-UserId INTEGER NOT NULL,
-BookId INTEGER NOT NULL,
-CheckedOut DATE NOT NULL,
-ReturnBy DATE NOT NULL,
-PRIMARY KEY (UserId,BookId));
+cur.execute('''
+CREATE TABLE IF NOT EXISTS Loans (
+    bookID INTEGER NOT NULL,
+    userLogon TEXT NOT NULL,
+    checkedOut DATETIME NOT NULL,
+    returnBy DATETIME NOT NULL,
+    PRIMARY KEY (bookID, userLogon),
+    FOREIGN KEY (bookID) REFERENCES Books(bookID),
+    FOREIGN KEY (userLogon) REFERENCES LibUsers(userLogon)
+)
+''')
+
+# UpgradeReqs table for handling security level upgrade requests data
+# Created by Pablo
+cur.execute('''
+CREATE TABLE IF NOT EXISTS UpgradeReqs(
+    RequestId INTEGER PRIMARY KEY NOT NULL,
+    UserLogon TEXT UNIQUE NOT NULL,
+    UserName TEXT NOT NULL,
+    CurrentLevel INTEGER NOT NULL,
+    DesiredLevel INTEGER NOT NULL,
+    DateOfRequest DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    Reason TEXT NOT NULL,
+    InvExperience TEXT NOT NULL,
+    NetExperience TEXT NOT NULL,
+    Tasks TEXT NOT NULL
+)
+''')
+
+# Libraries table created by Shawnie
+cur.execute('''
+CREATE TABLE IF NOT EXISTS Libraries (
+    libraryID INTEGER PRIMARY KEY AUTOINCREMENT,
+    libraryName TEXT COLLATE NOCASE NOT NULL,
+    libraryAddress TEXT NOT NULL,
+    libraryCity TEXT NOT NULL,
+    libraryState TEXT NOT NULL,
+    libraryZip TEXT NOT NULL
+)
 ''')
 
 
-# Create list of users
-'''
-Users = [(cipher.encrypt('JKnorr'),cipher.encrypt('123-675-7645'),cipher.encrypt('123 Street lane'),('FSU PC Library'),1,cipher.encrypt('test123')),
-         (cipher.encrypt('IQuintero'),cipher.encrypt('895-345-6523'),cipher.encrypt('123 Street lane'),('FSU PC Library'),2,cipher.encrypt('test123')),
-         (cipher.encrypt('PGuardia'),cipher.encrypt('428-197-3967'),cipher.encrypt('123 Street lane'),('FSU PC Library'),3,cipher.encrypt('test123')),
-         (cipher.encrypt('SHouston'),cipher.encrypt('239-567-3498'),cipher.encrypt('123 Street lane'),('FSU PC Library'),2,cipher.encrypt('test123'))]
 
-
-# executemany command to add entire list of users to table all at once
-
-cur.executemany('Insert into LibUsers(UserName,'
-                'UserPhNum,'
-                'UserAddress,'
-                'UserLocalLibrary,'
-                'SecurityLevel,'
-                'LoginPassword) Values(?,?,?,?,?,?)', Users)
-            
-'''
-# test code from chatgpt
-# 1. Insert entries into the Books table
-books_data = [
-    (1, 'The Catcher in the Rye', 9780316769488, 'J.D. Salinger', 'Little, Brown and Company', True, 'Central Library', '813.52'),
-    (2, 'To Kill a Mockingbird', 9780061120084, 'Harper Lee', 'J.B. Lippincott & Co.', True, 'Central Library', '813.54'),
-    (3, '1984', 9780451524935, 'George Orwell', 'Secker & Warburg', False, 'Westside Library', '823.912'),
-    (4, 'Moby Dick', 9781503280786, 'Herman Melville', 'Harper & Brothers', True, 'Central Library', '813.3'),
-    (5, 'Pride and Prejudice', 9781503290563, 'Jane Austen', 'T. Egerton', False, 'Eastside Library', '823.7'),
-    (6, 'The Great Gatsby', 9780743273565, 'F. Scott Fitzgerald', 'Charles Scribner\'s Sons', True, 'Central Library', '813.52'),
-    (7, 'War and Peace', 9780199232765, 'Leo Tolstoy', 'The Russian Messenger', False, 'Westside Library', '891.73'),
-    (8, 'The Hobbit', 9780547928227, 'J.R.R. Tolkien', 'George Allen & Unwin', True, 'Eastside Library', '823.912'),
-    (9, 'Crime and Punishment', 9780140449136, 'Fyodor Dostoevsky', 'The Russian Messenger', False, 'Central Library', '891.733'),
-    (10, 'The Odyssey', 9780140268867, 'Homer', 'Penguin Classics', True, 'Eastside Library', '883.01')
+# Insert sample data into Books
+books = [
+    (1, 'The Great Gatsby', 'F. Scott Fitzgerald', 'Scribner', '9780743273565', 'A novel set in the 1920s.', 'Fiction', '813.52'),
+    (1, '1984', 'George Orwell', 'Harcourt', '9780451524935', 'Dystopian novel about totalitarianism.', 'Fiction', '823.912'),
+    (2, 'To Kill a Mockingbird', 'Harper Lee', 'J.B. Lippincott & Co.', '9780061120084', 'A novel about racial injustice.', 'Fiction', '813.54'),
+    (2, 'The Catcher in the Rye', 'J.D. Salinger', 'Little, Brown and Company', '9780316769488', 'A story about teenage alienation.', 'Fiction', '813.54'),
+    (3, 'Moby Dick', 'Herman Melville', 'Richard Bentley', '9781503280786', 'A novel about obsession and revenge.', 'Fiction', '813.3'),
+    (3, 'Pride and Prejudice', 'Jane Austen', 'T. Egerton', '9781503290563', 'A romantic novel that critiques the British landed gentry.', 'Fiction', '823.7'),
+    (4, 'The Old Man and the Sea', 'Ernest Hemingway', 'Charles Scribner\'s Sons', '9780684830490', 'A story of an aging fisherman\'s struggle.', 'Fiction', '813.54'),
+    (4, 'The Road', 'Cormac McCarthy', 'Alfred A. Knopf', '9780307387899', 'A post-apocalyptic novel.', 'Fiction', '813.54'),
 ]
 
 cur.executemany('''
-    INSERT INTO Books (BookId, BookName, ISBN13, Author, Publisher, CheckedOut, LibraryLocation, DeweyDecimal)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-''', books_data)
+INSERT INTO Books (libraryID, bookName, author, publisher, isbn13, description, genre, dewey) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+''', books)
 
-# 2. Insert entries into the LibUsers table
-users_data = [
-    (1, cipher.encrypt('Alice Johnson'), cipher.encrypt('555-1234'), cipher.encrypt('123 Maple St'), 'Central Library', 1, cipher.encrypt('password1')),
-    (2, cipher.encrypt('BobSmith'), cipher.encrypt('555-5678'), cipher.encrypt('456 Oak St'), 'Westside Library', 1, cipher.encrypt('password2')),
-    (3, cipher.encrypt('CharlieDavis'), cipher.encrypt('555-9101'), cipher.encrypt('789 Pine St'), 'Central Library', 2, cipher.encrypt('password3')),
-    (4, cipher.encrypt('DianaRoss'), cipher.encrypt('555-1122'), cipher.encrypt('321 Elm St'), 'Eastside Library', 1, cipher.encrypt('password4')),
-    (5, cipher.encrypt('EvanLee'), cipher.encrypt('555-3344'), cipher.encrypt('654 Birch St'), 'Central Library', 3, cipher.encrypt('password5')),
-    (6, cipher.encrypt('FionaGreen'), cipher.encrypt('555-5566'), cipher.encrypt('987 Cedar St'), 'Eastside Library', 1, cipher.encrypt('password6')),
-    (7, cipher.encrypt('GeorgeKing'),cipher.encrypt('555-7788'), cipher.encrypt('111 Spruce St'), 'Westside Library', 1, cipher.encrypt('password7')),
-    (8, cipher.encrypt('HelenClark'), cipher.encrypt('555-9900'), cipher.encrypt('222 Redwood St'), 'Central Library', 1, cipher.encrypt('password8')),
-    (9, cipher.encrypt('IanTurner'), cipher.encrypt('555-0011'), cipher.encrypt('333 Willow St'), 'Eastside Library', 2, cipher.encrypt('password9')),
-    (10, cipher.encrypt('JanePorter'), cipher.encrypt('555-2233'), cipher.encrypt('444 Cypress St'), 'Westside Library', 3, cipher.encrypt('password10'))
+users = [
+    ('jdoe', 1, 'John', 'Doe', '555-1234', '789 Pine St', 'Florida City', 'FL', '33034', 1, 'password123'),
+    ('asmith', 2, 'Alice', 'Smith', '555-5678', '321 Oak St', 'Homestead', 'FL', '33030', 2, 'mypassword'),
+    ('bwhite', 1, 'Bob', 'White', '555-8765', '654 Maple St', 'Florida City', 'FL', '33034', 1, 'securepass'),
+    ('cjohnson', 3, 'Charlie', 'Johnson', '555-4321', '111 Elm St', 'Key Largo', 'FL', '33037', 2, 'charliepass'),
+    ('dlee', 4, 'Diana', 'Lee', '555-6789', '222 Cedar St', 'Everglades City', 'FL', '34139', 1, 'dianapass'),
+    ('ewilliams', 1, 'Ethan', 'Williams', '555-9876', '333 Birch St', 'Florida City', 'FL', '33034', 3, 'ethanpass'),
+    ('fgarcia', 2, 'Fiona', 'Garcia', '555-3456', '444 Willow St', 'Homestead', 'FL', '33030', 2, 'fionapass'),
+    ('hclark', 3, 'Henry', 'Clark', '555-8765', '555 Palm St', 'Key Largo', 'FL', '33037', 1, 'henrypass'),
+]
+
+# Encrypt the user data
+encrypted_users = [
+    (
+        userLogon,
+        libraryID,
+        cipher.encrypt(firstName),
+        cipher.encrypt(lastName),
+        cipher.encrypt(phoneNum),
+        cipher.encrypt(userAddress),
+        cipher.encrypt(userCity),
+        cipher.encrypt(userState),
+        cipher.encrypt(userZip),
+        securityLevel,
+        cipher.encrypt(password)
+    )
+    for userLogon, libraryID, firstName, lastName, phoneNum, userAddress, userCity, userState, userZip, securityLevel, password in users
 ]
 
 cur.executemany('''
-    INSERT INTO LibUsers (UserId, UserName, UserPhNum, UserAddress, UserLocalLibrary, SecurityLevel, LoginPassword)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-''', users_data)
+INSERT INTO LibUsers (userLogon, libraryID, firstName, lastName, phoneNum, userAddress, userCity, userState, userZip, securityLevel, password) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+''', encrypted_users)
 
-# 3. Insert entries into the Loans table
-loans_data = [
-    (1, 1, '2024-09-01', '2024-09-15'),
-    (3, 2, '2024-09-03', '2024-09-17'),
-    (8, 4, '2024-09-05', '2024-09-19'),
-    (6, 8, '2024-09-04', '2024-09-18'),
-    (9, 10, '2024-09-02', '2024-09-16'),
-    (5, 6, '2024-09-06', '2024-09-20')
+# Insert sample data into Loans
+loans = [
+    (1, 'jdoe', datetime.now(), datetime.now() + timedelta(days=21)),
+    (2, 'asmith', datetime.now(), datetime.now() + timedelta(days=21)),
+    (3, 'bwhite', datetime.now(), datetime.now() + timedelta(days=21)),
+    (4, 'cjohnson', datetime.now(), datetime.now() + timedelta(days=21)),
+    (5, 'dlee', datetime.now(), datetime.now() + timedelta(days=21)),
+    (6, 'ewilliams', datetime.now(), datetime.now() + timedelta(days=21)),
+    (7, 'fgarcia', datetime.now(), datetime.now() + timedelta(days=21)),
+    (8, 'hclark', datetime.now(), datetime.now() + timedelta(days=21)),
 ]
 
 cur.executemany('''
-    INSERT INTO Loans (UserId, BookId, CheckedOut, ReturnBy)
-    VALUES (?, ?, ?, ?)
-''', loans_data)
+INSERT INTO Loans (bookID, userLogon, checkedOut, returnBy) 
+VALUES (?, ?, ?, ?)
+''', loans)
+
+# Insert sample data into Libraries
+libraries = [
+    ('Florida Bay County Library', '123 Main St', 'Florida City', 'FL', '33034'),
+    ('Homestead Public Library', '456 Library Ave', 'Homestead', 'FL', '33030'),
+    ('Key Largo Library', '789 Ocean Dr', 'Key Largo', 'FL', '33037'),
+    ('Everglades City Library', '101 River Rd', 'Everglades City', 'FL', '34139'),
+]
+
+cur.executemany('''
+INSERT INTO Libraries (libraryName, libraryAddress, libraryCity, libraryState, libraryZip) 
+VALUES (?, ?, ?, ?, ?)
+''', libraries)
 
 
 # save changes
@@ -165,11 +223,12 @@ print('tables created')
 
 # iterate over the rows and print results from select statement
 for row in cur.execute('SELECT * FROM LibUsers;'):
-    #print(row[0],cipher.decrypt(row[1]),cipher.decrypt(row[2]),cipher.decrypt(row[3]),row[4],row[5],cipher.decrypt(row[6]))
     print(row)
 
-
 for row in cur.execute('SELECT * FROM Books;'):
+    print(row)
+
+for row in cur.execute('SELECT * FROM Libraries;'):
     print(row)
 
 for row in cur.execute('SELECT * FROM Loans;'):

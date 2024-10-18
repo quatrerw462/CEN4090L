@@ -16,8 +16,28 @@
         {% endif %}
     {% endwith %}
 
+    <h1>Add a library to the network</h1>
 
+    <form action="{{ url_for('addLib') }}" method="POST">
+        Library Name<br>
+        <input type="text" name="libName" required><br><br>
 
+        Library Address<br>
+        <input type="text" name="libAddress" required><br><br>
+
+        Library City<br>
+        <input type="text" name="libCity" required><br><br>
+
+        Library State<br>
+        <input type="text" name="libState" required><br><br>
+
+        Library Zip Code<br>
+        <input type="text" name="libZip" required><br><br>
+
+        <input type="submit" value="submit"><br>
+    </form>
+
+    <a href="/showLibs"><h3>Go back to library list</h3></a>
 </body>
 
 </html>

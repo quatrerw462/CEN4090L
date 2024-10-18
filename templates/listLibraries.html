@@ -18,6 +18,18 @@
 
     {% if session['logged_in'] and session['admin'] >= 3 %}
         <h1>LitManager Network Libraries</h1>
+        {% for index, row in rows.iterrows() %}
+            <details>
+                <summary>{{ row["libraryName"] }} (ID: {{ row["libraryID"] }})</summary>
+                <ul>
+                    <li>Address: {{ row["libraryAddress"] }}</li>
+                    <li>City: {{ row["libraryCity"] }}</li>
+                    <li>State: {{ row["libraryState"] }}</li>
+                    <li>Zip Code: {{ row["libraryZip"] }}</li>
+                    <li><a href="#">Remove library from network</a></li>
+                </ul>
+            </details>
+        {% endfor %}
 
         <a href="/"><h3>Go back to home page</h3></a>
     {% endif %}

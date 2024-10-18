@@ -618,6 +618,24 @@ def upgradeUser():
                 flash("An error occurred accepting/rejecting the request...")
                 return redirect(url_for('listRequests'))
 
+@app.route('/showLibs')
+def showLibs():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+
+    elif session.get('admin') < 3:
+        flash("You must have security level 3 to access this page...")
+        return render_template('home.html')
+
+    else:
+        con = sql.connect("Library.db")
+        con.row_factory = sql.Row
+        cur = con.cursor()
+        cur.execute("SELECT * FROM Libraries")
+
+        df = pd.DataFrame(cur.fetchall(), columns=['libraryID', 'libraryName', 'libraryAddress', 'libraryCity', 'libraryState', 'libraryZip'])
+        return render_template('listLibraries.html', rows = df)
+
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------

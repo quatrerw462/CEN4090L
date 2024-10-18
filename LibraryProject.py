@@ -636,6 +636,38 @@ def showLibs():
         df = pd.DataFrame(cur.fetchall(), columns=['libraryID', 'libraryName', 'libraryAddress', 'libraryCity', 'libraryState', 'libraryZip'])
         return render_template('listLibraries.html', rows = df)
 
+@app.route('/deleteLib')
+def deleteLib():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+
+    elif session.get('admin') < 3:
+        flash("You must have security level 3 to access this page...")
+        return render_template('home.html')
+
+    else:
+        libID = request.args.get('libID', default=-1, type=int)
+
+        if libID != -1:
+            try:
+                con = sql.connect("Library.db")
+                cur = con.cursor()
+                cur.execute(f"DELETE FROM Libraries WHERE libraryID={libID}")
+                con.commit()
+            except Exception as e:
+                con.rollback()
+                print(f"Error: {e}")
+                print("Error in delete operation\n" + f"Error: {e}")
+                return redirect(url_for('showLibs'))
+            finally:
+                con.close()
+                flash("Library successfully deleted!")
+                return redirect(url_for('showLibs'))
+        else:
+            print("An error occurred deleting the library...")
+            flash("An error occurred deleting the library...")
+            return redirect(url_for('showLibs'))
+
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------

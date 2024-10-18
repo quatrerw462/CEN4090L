@@ -668,6 +668,18 @@ def deleteLib():
             flash("An error occurred deleting the library...")
             return redirect(url_for('showLibs'))
 
+@app.route('/addLibForm')
+def addLibForm():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+
+    elif session.get('admin') < 3:
+        flash("You must have security level 3 to access this page...")
+        return render_template('home.html')
+
+    else:
+        return render_template('addLibrary.html')
+
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------

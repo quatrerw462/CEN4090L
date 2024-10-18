@@ -680,7 +680,7 @@ def addLibForm():
     else:
         return render_template('addLibrary.html')
 
-@app.route('/addLib')
+@app.route('/addLib', methods=['POST', 'GET'])
 def addLib():
     if not session.get('logged_in'):
         return render_template('login.html')

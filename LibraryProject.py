@@ -618,6 +618,109 @@ def upgradeUser():
                 flash("An error occurred accepting/rejecting the request...")
                 return redirect(url_for('listRequests'))
 
+@app.route('/showLibs')
+def showLibs():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+
+    elif session.get('admin') < 3:
+        flash("You must have security level 3 to access this page...")
+        return render_template('home.html')
+
+    else:
+        con = sql.connect("Library.db")
+        con.row_factory = sql.Row
+        cur = con.cursor()
+        cur.execute("SELECT * FROM Libraries")
+
+        df = pd.DataFrame(cur.fetchall(), columns=['libraryID', 'libraryName', 'libraryAddress', 'libraryCity', 'libraryState', 'libraryZip'])
+        return render_template('listLibraries.html', rows = df)
+
+@app.route('/deleteLib')
+def deleteLib():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+
+    elif session.get('admin') < 3:
+        flash("You must have security level 3 to access this page...")
+        return render_template('home.html')
+
+    else:
+        libID = request.args.get('libID', default=-1, type=int)
+
+        if libID != -1:
+            try:
+                con = sql.connect("Library.db")
+                cur = con.cursor()
+                cur.execute(f"DELETE FROM Libraries WHERE libraryID={libID}")
+                con.commit()
+            except Exception as e:
+                con.rollback()
+                print(f"Error: {e}")
+                print("Error in delete operation\n" + f"Error: {e}")
+                return redirect(url_for('showLibs'))
+            finally:
+                con.close()
+                flash("Library successfully deleted!")
+                return redirect(url_for('showLibs'))
+        else:
+            print("An error occurred deleting the library...")
+            flash("An error occurred deleting the library...")
+            return redirect(url_for('showLibs'))
+
+@app.route('/addLibForm')
+def addLibForm():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+
+    elif session.get('admin') < 3:
+        flash("You must have security level 3 to access this page...")
+        return render_template('home.html')
+
+    else:
+        return render_template('addLibrary.html')
+
+@app.route('/addLib', methods=['POST', 'GET'])
+def addLib():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+
+    elif session.get('admin') < 3:
+        flash("You must have security level 3 to access this page...")
+        return render_template('home.html')
+
+    elif request.method == 'POST':
+        nm = request.form['libName']
+        ad = request.form['libAddress']
+        cty = request.form['libCity']
+        st = request.form['libState']
+        zp = request.form['libZip']
+
+        try:
+            with sql.connect("Library.db") as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO Libraries (libraryName,"
+                            "libraryAddress,"
+                            "libraryCity,"
+                            "libraryState,"
+                            "libraryZip)"
+                            "VALUES (?,?,?,?,?)", (nm, ad, cty, st, zp))
+                con.commit()
+        except Exception as e:
+            con.rollback()
+            print(f"Error: {e}")
+            print("Error in insert operation\n" + f"Error: {e}")
+            return redirect(url_for('addLibForm'))
+        finally:
+            con.close()
+            flash("Library successfully created!")
+            return redirect(url_for('showLibs'))
+
+    else:
+        print("An error occurred...")
+        flash("An error occurred...")
+        return redirect(url_for('addLibForm'))
+
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------

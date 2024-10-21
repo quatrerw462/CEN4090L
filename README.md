@@ -17,3 +17,9 @@
 - Added search function for database. Not implemented into the website for easy access, but a preliminary version is up and running. Type '/search' after the URL to test it out.
   
 - All code in this update written by Pablo and Shawnie. Merged together and pushed into repository by Pablo.
+
+
+<h3>Update (October 21st):</h3>
+
+- Added functionality to add and remove books to database
+- Level 3 users can choose which library, level 2 users can only add/remove from the library associated with their account

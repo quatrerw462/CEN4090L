@@ -55,7 +55,10 @@ def check_out():
     if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
         return render_template('loans.html')
     else:
-        return render_template('checkOut.html', name=session['name'])
+        con = sql.connect("Library.db")
+        con.row_factory = sql.Row
+        cur = con.cursor()
+        return render_template('checkOut.html', name=session['name'], UserLocalLibrary=session['UserLocalLibraryName'])
 
 
 
@@ -348,15 +351,8 @@ def do_admin_login():
       con.close()
    return home()
 
-#Code for enter test results page - only admin level 3 can access and enter new test results
-@app.route('/enterTestResult')
-def new_TestResult():
-   if not session.get('logged_in'):
-      return render_template('login.html')
-   elif session.get('admin') == 2 or session.get('admin') == 3:
-     return render_template('newTestResult.html')
-   else:
-       abort(404)
+
+
 
 
 
@@ -635,8 +631,14 @@ def upgradeUser():
 # Written by Shawnie, merged into main code by Pablo.
 
 @app.route('/search')
+# log in validation updated by Josh October 18th
+
 def search():
-    return render_template('search.html')
+    if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
+        return render_template('login.html')
+    else:
+        return render_template('search.html', name=session['name'], UserLocalLibrary=session['UserLocalLibraryName'])
+
 
 @app.route('/results', methods=['POST'])
 def results():
@@ -676,15 +678,163 @@ def results():
             return render_template('results.html', rows = df)
     return render_template('search.html')
 
+# October 18th merge update:
+# Josh:
+# Added functions to access enterNew page to add/remove materials from library
+
+# This function looks at Libraries table and returns the list of unique library names for dropdowns
+@app.route('/libraryList',methods=['POST', 'GET'])
+def library_list():
+    con = sql.connect("Library.db")
+    con.row_factory = sql.Row
+    cur = con.cursor()
+    cur.execute("SELECT DISTINCT libraryName FROM Libraries")
+    library_names = [row[0] for row in cur.fetchall()]
+    con.close()
+    return jsonify(library_names)
+
+#
+@app.route('/enterNew', methods=['POST', 'GET'])
+def enterNew():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    elif session.get('admin') == 2 or session.get('admin') == 3:
+        if session.get('admin') == 3:
+            selected_library = request.form.get('selectedLibrary')
+        else:
+            selected_library = session['UserLocalLibraryName']
+
+        if request.form.get('AddBook'):
+            title = request.form['AddBookTitle']
+            author = request.form['AddBookAuthor']
+            pub = request.form['AddBookPublisher']
+            isbn = request.form['AddBookISBN']
+            desc = request.form['AddBookDescription']
+            genre = request.form['AddBookGenre']
+            dewey = request.form['AddBookDeweyDecimal']
+
+            message = ""  # initialization of blank string for error message
+            errors = 0  # initialization of error counter
+
+            # if statements to catch blank inputs
+            if (len(title) == 0):
+                message = message + "Can not add inventory, Book title is required\n"
+                errors += 1
+            if (len(author) == 0):
+                message = message + "Can not add inventory, Book author is required\n"
+                errors += 1
+            if (len(pub) == 0):
+                message = message + "Can not add inventory, Book publisher is required\n"
+                errors += 1
+            if (len(isbn) == 0):
+                message = message + "Can not add inventory, Book ISBN is required\n"
+                errors += 1
+            if (len(desc) == 0):
+                message = message + "Can not add inventory, Book description is required\n"
+                errors += 1
+            if (len(genre) == 0):
+                message = message + "Can not add inventory, Book genre is required\n"
+                errors += 1
+            if (len(dewey) == 0):
+                message = message + "Can not add inventory, Book dewey decimal is required\n"
+                errors += 1
+            if (errors > 0):  # if error counter > 0, display all error messages generated
+                message = message.split('\n')
+                return render_template("result.html", msg=message)
+
+
+            try:
+                with sql.connect("Library.db") as con:
+                    cur = con.cursor()
+                    # selected library needs to be in parentheses with a comma to force it to be parsed as string
+                    cur.execute("Select libraryID from Libraries where libraryName = ?", (selected_library,))
+                    #cur.fetchone returns a tuple. only want to access 1st element
+                    result = cur.fetchone()
+                    libID = result[0]
+                    print(libID)
+                    cur.execute("INSERT INTO Books (libraryID,"
+                                "bookName,"
+                                "author,"
+                                "publisher,"
+                                "isbn13,"
+                                "description,"
+                                "genre,"
+                                "dewey) "
+                                "VALUES (?,?,?,?,?,?,?,?)", (libID, title, author, pub, isbn, desc, genre, dewey))
+
+                    con.commit()
+                    message = message + "Inventory successfully added\n"
+
+            except Exception as e:
+                con.rollback()
+                print(f"Error: {e}")
+                message = message + "error in insert operation\n" + f"Error: {e}"
+
+            finally:
+                message = message.split('\n')
+                return render_template("result.html", msg=message)
+                con.close()
+
+
+        elif request.form.get('RemoveBook'):
+            message = ""  # initialization of blank string for error message
+            try:
+                print(f"{selected_library} 1")
+                title = request.form['RemoveBookTitle']
+                author = request.form['RemoveBookAuthor']
+                pub = request.form['RemoveBookPublisher']
+                isbn = request.form['RemoveBookISBN']
+                print(f"{selected_library} 2")
+                with sql.connect("Library.db") as con:
+                    con.row_factory = sql.Row
+                    cur = con.cursor()
+
+                    # tries to match book to entry in table
+
+                    sql_select_query = """select * from Books \
+                                        join Libraries on Books.libraryID = libraries.libraryID \
+                                        where bookName = ? and author = ? and publisher = ? and isbn13 = ? and libraryName = ?"""
+                    cur.execute(sql_select_query, (title,author,pub,isbn,selected_library))
+                    print(f"{selected_library} 3")
+                    print(f"{selected_library} 4")
+                    row = cur.fetchone()
+                    print(f"{selected_library} 5")
+                    if (row != None):  # this is true if a record is found
+                        print(f"{selected_library} 6")
+                        sql_delete_query = """Delete from Books where bookID in (  \
+                                                               select Books.bookID from Books \
+                                                               join Libraries on Books.libraryID = libraries.libraryID \
+                                                               where bookName = ? and author = ? and publisher = ? and isbn13 = ? and libraryName = ?)"""
+                        print(f"{selected_library} 7")
+                        cur.execute(sql_delete_query, (title, author, pub, isbn, selected_library))
+                        print(f"{selected_library} 8")
+                        con.commit()
+                        message = message + "Inventory successfully deleted\n"
+                    else:
+                        flash("Book not found in inventory, cannot delete")
+
+            except Exception as e:
+                con.rollback()
+                print(f"Error: {e}")
+                message = message + "error in delete operation\n" + f"Error: {e}"
+
+            finally:
+                message = message.split('\n')
+                return render_template("result.html", msg=message)
+                con.close()
+
+        return render_template('enterNew.html', UserInventoryLibrary=selected_library)
+    else:
+        abort(404)
 
 
 @app.route("/logout")
 # if user clicks logout link, resets variables
 def logout():
-   session['logged_in'] = False  # reset logged_in to false
-   session['admin'] = 1
-   session['name'] = ""
-   return home()
+    session['logged_in'] = False  # reset logged_in to false
+    session['admin'] = 1
+    session['name'] = ""
+    return home()
 
 
 if __name__ == '__main__':

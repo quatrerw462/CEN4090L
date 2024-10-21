@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!--html page to display info about current logged in user-->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+<body data-gr-c-s-loaded="true" style="margin: 0px;">
+  {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+         {% endif %}
+    {% endwith %}
+
+{% if session['logged_in'] %}
+    <h1>Library User Information </h1>
+	<table style = "font-size:20px" border="0">
+            <tr>
+			<td><b>Name:</b>&nbsp;&nbsp;{{row.iat[0,0]}} {{row.iat[0,1]}}</td>
+			</tr>
+			<tr>
+			<td><b>Phone Number:</b>&nbsp;&nbsp;{{row.iat[0,2]}}</td>
+			</tr>
+			<tr>
+			<td><b>Address:</b>&nbsp;&nbsp;{{row.iat[0,3]}}</td>
+			</tr>
+			<tr>
+			<td><b>Local Library:</b>&nbsp;&nbsp;{{row.iat[0,4]}}</td>
+			</tr>
+			<tr>
+				<td>
+					<b>Security Role Level:</b>&nbsp;&nbsp;{{row.iat[0,5]}}
+					<!--Little code snippet added so users below level 3 can request to upgrade their security level-->
+					<!--However, they can only make a request if they haven't done so already-->
+					<!--Minor change by Pablo-->
+					{% if session['admin'] < 3 and not requestExists %}
+					(<a href="/request">Request Security Level Upgrade</a>)
+					{% endif %}
+				</td>
+			</tr>
+			<tr>
+		    <td><b>Login Password:</b>&nbsp;&nbsp;{{row.iat[0,6]}}</td>
+            </tr>
+      </table>
+	<h2><a href="/">Go back to home page</a></h2>
+  
+{% endif %}
+
+	  <!--a href = anchor, creates link to route in quotes. both /enternew and /list
+	  have routes defined in newHospitalUsers program, which route to corresponding htmls-->
+      
+   
+
+</body></html>

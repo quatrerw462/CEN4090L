@@ -1,0 +1,58 @@
+<!-- based off of player.html document provided by dr works -->
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+<body data-gr-c-s-loaded="true" style="margin: 0px;">
+    {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+         {% endif %}
+    {% endwith %}
+
+<!-- creation of form to feed into addrec -->     
+      <form action="{{ url_for('addrec') }}"  method="POST">
+         <h3>Create Account</h3>
+         First Name<br>
+         <input type="text" name="FirstName" ><br><br>
+
+         Last Name<br>
+         <input type="text" name="LastName" ><br><br>
+
+         Username<br>
+         <input type="text" name="UserName" ><br><br>
+         
+         Phone Number<br>
+         <input type="text" name="PhoneNumber"><br><br>
+		 
+		 Address<br>
+		 <input type ="text" name="Address"><br><br>
+
+         City<br>
+         <input type ="text" name="City"><br><br>
+
+         State<br>
+         <input type ="text" name="State"><br><br>
+
+         Zip<br>
+         <input type ="text" name="Zip"><br><br>
+		 <!-- add functionality to determine closest libary based on address -->
+
+         <!--Security Level field was removed. Minor change by Pablo-->
+
+		 Local Library<br>
+		 <input type ="text" name="LocalLibrary"><br><br>
+		 
+         Login Password<br>
+         <input type="password" name="Password"><br><br>
+         <input type="submit" value="submit"><br>
+      </form>
+      
+   
+
+</body>
+</html>

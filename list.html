@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- based off of list.html document provided by dr works -->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+<body data-gr-c-s-loaded="true" style="margin: 0px;">
+    {% with messages = get_flashed_messages() %}
+         {% if messages %}
+            <ul>
+               {% for message in messages %}
+               <li>{{ message }}</li>
+               {% endfor %}
+            </ul>
+         {% endif %}
+    {% endwith %}
+<!--need to add validation below to ensure users are both logged in and admins
+need to also make sure they cant access page by typing in route directly into browser-->
+
+{% if session['logged_in'] and session['admin']== 2 or session['admin']== 3%}
+
+      <table border="1">
+         <thead>
+            <tr><td>Book</td>
+            <td>First name of user who checked out book</td>
+            <td>Last name of user who checked out book</td>
+            <td>Library where book was checked out from</td>
+			<td>Date checked out</td>
+			<td>Date Due Back</td>
+         </tr></thead>
+          <tbody>
+          {% for index, row in rows.iterrows() %} <!-- loop through table and print info in various rows-->
+          <tr>
+               <td>{{row["b.bookName"]}}</td>
+               <td>{{row["u.firstName"]}}</td>
+               <td>{{row["u.lastName"]}}</td>
+               <td> {{row["lib.libraryName"]}}</td>
+               <td>{{row["lo.checkedOut"]}}</td>
+			   <td>{{row["lo.returnBy"]}}</td>
+            </tr>
+      {% endfor %}
+          </tbody>
+      </table>
+      
+      <a href="/">Go back to home page</a>
+	  <!--this works because a route '/' was defined in program which
+	  routes to home.html-->
+{% endif %}
+
+</body></html>

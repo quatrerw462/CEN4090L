@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+<body data-gr-c-s-loaded="true" style="margin: 0px;">
+    <form action="{{ url_for('results') }}" method="post">
+        <input type="search" id="libsearch" name="libsearch" placeholder="Search libraries">
+        <select name="category" id="category">
+            <option value="book">Book</option>
+            <option value="author">Author</option>
+            <option value="genre">Genre</option>
+            <option value="library">Library</option>
+        </select>
+    </form>
+</body>
+</html>

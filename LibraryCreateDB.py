@@ -5,6 +5,10 @@
 # Second version written by Shawnie.
 # Merging into project and additional changes by Pablo.
 
+# October 26th Update:
+# Added on delete cascade and on delete set default functionality to tables
+# Josh
+
 import sqlite3
 from datetime import datetime, timedelta
 import Encryption
@@ -71,14 +75,14 @@ CREATE TABLE IF NOT EXISTS Books (
     description TEXT,
     genre TEXT COLLATE NOCASE,
     dewey TEXT,
-    FOREIGN KEY (libraryID) REFERENCES Libraries(libraryID)
+    FOREIGN KEY (libraryID) REFERENCES Libraries(libraryID) ON DELETE CASCADE
 )
 ''')
 
 cur.execute('''
 CREATE TABLE IF NOT EXISTS LibUsers (
     userLogon TEXT PRIMARY KEY NOT NULL,
-    libraryID INTEGER,
+    libraryID INTEGER DEFAULT -1,
     firstName TEXT NOT NULL,
     lastName TEXT NOT NULL,
     phoneNum TEXT NOT NULL,
@@ -88,7 +92,7 @@ CREATE TABLE IF NOT EXISTS LibUsers (
     userZip TEXT NOT NULL,
     securityLevel INTEGER NOT NULL,
     password TEXT NOT NULL,
-    FOREIGN KEY (libraryID) REFERENCES Libraries(libraryID)
+    FOREIGN KEY (libraryID) REFERENCES Libraries(libraryID) ON DELETE SET DEFAULT
 )
 ''')
 
@@ -99,7 +103,7 @@ CREATE TABLE IF NOT EXISTS Loans (
     checkedOut DATETIME NOT NULL,
     returnBy DATETIME NOT NULL,
     PRIMARY KEY (bookID, userLogon),
-    FOREIGN KEY (bookID) REFERENCES Books(bookID),
+    FOREIGN KEY (bookID) REFERENCES Books(bookID) ON DELETE CASCADE,
     FOREIGN KEY (userLogon) REFERENCES LibUsers(userLogon)
 )
 ''')

@@ -339,7 +339,7 @@ def do_admin_login():
             elif(int(row['securityLevel'])==2):
                session['admin'] = 2
             else:
-                session['admin'] = 1
+               session['admin'] = 1
 
          else:  # if either username or password are invalid, returns message
             session['logged_in'] = False
@@ -740,45 +740,102 @@ def search():
     if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
         return render_template('login.html')
     else:
-        return render_template('search.html', name=session['name'], UserLocalLibrary=session['UserLocalLibraryName'])
+        if session.get('admin') < 3:
+            return render_template('search.html', name=session['name'], UserLocalLibrary=session['UserLocalLibraryName'])
+        else:
+            return render_template('globalSearch.html', name=session['name'],
+                                   UserLocalLibrary=session['UserLocalLibraryName'])
 
-
-@app.route('/results', methods=['POST'])
-def results():
+# October 27th update - Shawnie Houston
+# Changed function name and route to some form of "search results" to better distinguish between results and result
+# Changed what users see based on security level. Standard and librarians will default see search results for their
+# local library. Admins will see results for all libraries
+# Still need to implement a way for standard users and librarians to be able to do a global search if they want
+# to search more libraries.
+@app.route('/searchResults', methods=['POST'])
+def search_results():
     if request.method == 'POST':
-        srch = request.form.get('libsearch')
-        cat = request.form.get('category')
+        srch = request.form.get('libsearch')    # get search term
+        cat = request.form.get('category')      # get category selected
+        sec_lvl = session['admin']              # get security level
+        un = session['username']                # get username
 
+        # connect to db
         with sql.connect("Library.db") as con:
             con.row_factory = sql.Row
             cur = con.cursor()
 
-            if cat == 'book':
-                sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
-                FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                WHERE b.bookName LIKE ?;'''
-                cur.fetchall()
-                cur.execute(sql_query, ('%'+srch+'%',))
-            elif cat == 'author':
-                sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
-                FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                WHERE b.author LIKE ?;'''
-                cur.fetchall()
-                cur.execute(sql_query, ('%'+srch+'%',))
-            elif cat == 'genre':
-                sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
-                FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                WHERE b.genre LIKE ?;'''
-                cur.fetchall()
-                cur.execute(sql_query, ('%'+srch+'%',))
-            elif cat == 'library':
-                sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
-                FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                WHERE l.libraryName LIKE ?;'''
-                cur.fetchall()
-                cur.execute(sql_query, ('%'+srch+'%',))
+            # if standard user or librarian
+            if sec_lvl < 3:
+                # if user wants to search books
+                if cat == 'book':
+                    # get data with username match and partial book name match
+                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    FROM Books b \
+                    JOIN Libraries l ON l.libraryID = b.libraryID \
+                    JOIN LibUsers u ON u.libraryID = l.libraryID \
+                    WHERE u.userLogon = ? \
+                    AND b.bookName LIKE ?;'''
+                    cur.fetchall()
+                    cur.execute(sql_query, (un, '%'+srch+'%',))
+                # if user wants to search by author
+                elif cat == 'author':
+                    # get data with username match and partial author name match
+                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    FROM Books b \
+                    JOIN Libraries l ON l.libraryID = b.libraryID \
+                    JOIN LibUsers u ON u.libraryID = l.libraryID \
+                    WHERE u.userLogon = ? \
+                    AND b.author LIKE ?;'''
+                    cur.fetchall()
+                    cur.execute(sql_query, (un, '%'+srch+'%',))
+                # if user wants to search by genre
+                elif cat == 'genre':
+                    # get data with username match and partial genre name match
+                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    FROM Books b \
+                    JOIN Libraries l ON l.libraryID = b.libraryID \
+                    JOIN LibUsers u ON u.libraryID = l.libraryID \
+                    WHERE u.userLogon = ? \
+                    AND b.genre LIKE ?;'''
+                    cur.fetchall()
+                    cur.execute(sql_query, (un, '%'+srch+'%',))
+            else:
+                # if user wants to search by book
+                if cat == 'book':
+                    # return book name, author, description, genre, library name, and dewey decimal number
+                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
+                    WHERE b.bookName LIKE ?;'''
+                    cur.fetchall()
+                    cur.execute(sql_query, ('%' + srch + '%',))
+                # if user wants to search by author
+                elif cat == 'author':
+                    # return book name, author, description, genre, library name, and dewey decimal number
+                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
+                    WHERE b.author LIKE ?;'''
+                    cur.fetchall()
+                    cur.execute(sql_query, ('%' + srch + '%',))
+                # if user wants to search by genre
+                elif cat == 'genre':
+                    # return book name, author, description, genre, library name, and dewey decimal number
+                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
+                    WHERE b.genre LIKE ?;'''
+                    cur.fetchall()
+                    cur.execute(sql_query, ('%' + srch + '%',))
+                # if user wants to search by library
+                elif cat == 'library':
+                    # return book name, author, description, genre, library name, and dewey decimal number
+                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
+                    WHERE l.libraryName LIKE ?;'''
+                    cur.fetchall()
+                    cur.execute(sql_query, ('%'+srch+'%',))
+            # build data frame to send
             df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'b.author', 'b.description', 'b.genre', 'l.libraryName', 'b.dewey'])
-            return render_template('results.html', rows = df)
+            return render_template('searchResults.html', rows = df)
     return render_template('search.html')
 
 # October 18th merge update:

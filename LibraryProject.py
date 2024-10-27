@@ -42,12 +42,29 @@ def create_account():
     return render_template('createAccount.html')
 
 # definition of list borrowed materials, return loans.html
+# October 27th update - Shawnie Houston
+# Added the logic to display the user's currently borrow materials
 @app.route('/loans')
 def loans():
     if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
         return render_template('login.html')
     else:
-        return render_template('loans.html', name=session['name'])
+        con = sql.connect("Library.db")
+        con.row_factory = sql.Row
+        cur = con.cursor()
+        ul = session['UserLocalLibrary']
+
+        # get book name, checked out date, and return by date of logged in user's books
+        sql_query = '''SELECT b.bookName, lo.checkedOut, lo.returnBy \
+                        FROM Loans lo
+                        JOIN Books b ON b.bookID = lo.bookID
+                        JOIN Libraries lib ON lib.libraryID = b.libraryID
+                        WHERE b.libraryID = ?;'''
+
+        cur.execute(sql_query, (ul,))
+
+        df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'lo.checkedOut', 'lo.returnBy'])
+        return render_template("loans.html", rows = df)
 
 # definition of check out materials, return checkOut.html
 @app.route('/checkOut')
@@ -253,17 +270,25 @@ def list():
         con = sql.connect("Library.db")
         con.row_factory = sql.Row
         cur = con.cursor()
+        ul = session['UserLocalLibrary']
 
         # October 16th merge update:
         # Updated select queries to account for changes in table schemas.
         # Aimed to make the result as close as possible to Joshua's initial code results, but I may have gotten it wrong.
         # Further testing necessary.
         # Changed by Pablo.
-        cur.execute("SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy \
-                FROM Books b JOIN Loans lo ON b.bookID = lo.bookID \
-                JOIN Libraries lib ON b.libraryID = lib.libraryID \
-                JOIN LibUsers u ON lo.userLogon = u.userLogon WHERE lo.checkedOut IS NOT NULL \
-                AND u.libraryID = ?;", [session['UserLocalLibrary']])
+        #
+        # October 27th - Shawnie Houston
+        # Updated SQL query so the FROM is for loans and it's searching based on Books' libraryID
+        # Previous query was returning wrong library
+        sql_query = '''SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy \
+                FROM Loans lo
+                JOIN LibUsers u ON u.userLogon = lo.userLogon
+                JOIN Books b ON b.bookID = lo.bookID
+                JOIN Libraries lib ON lib.libraryID = b.libraryID
+                WHERE b.libraryID = ?;'''
+
+        cur.execute(sql_query, (ul,))
 
         df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'u.firstName', 'u.lastName', 'lib.libraryName', 'lo.checkedOut', 'lo.returnBy'])
         df['u.firstName'] = df['u.firstName'].apply(lambda x: cipher.decrypt(x)) # Decrypts user's first name
@@ -274,16 +299,23 @@ def list():
         con = sql.connect("Library.db")
         con.row_factory = sql.Row
         cur = con.cursor()
+        ul = session['UserLocalLibrary']
 
         # October 16th merge update:
         # Updated select queries to account for changes in table schemas.
         # Aimed to make the result as close as possible to Joshua's initial code results, but I may have gotten it wrong.
         # Further testing necessary.
         # Changed by Pablo.
-        cur.execute("SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy \
-                FROM Books b JOIN Loans lo ON b.bookID = lo.bookID \
-                JOIN Libraries lib ON b.libraryID = lib.libraryID \
-                JOIN LibUsers u ON lo.userLogon = u.userLogon WHERE lo.checkedOut IS NOT NULL;")
+        #
+        # October 27th - Shawnie Houston
+        # Updated SQL query so the FROM is for loans and it's searching based on Books' libraryID
+        sql_query = '''SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy \
+                FROM Loans lo
+                JOIN LibUsers u ON u.userLogon = lo.userLogon
+                JOIN Books b ON b.bookID = lo.bookID
+                JOIN Libraries lib ON lib.libraryID = b.libraryID;'''
+
+        cur.execute(sql_query)
 
         df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'u.firstName', 'u.lastName', 'lib.libraryName', 'lo.checkedOut', 'lo.returnBy'])
         df['u.firstName'] = df['u.firstName'].apply(lambda x: cipher.decrypt(x)) # Decrypts user's first name

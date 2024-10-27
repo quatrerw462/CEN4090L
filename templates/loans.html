@@ -14,13 +14,22 @@
     {% endwith %}
 
 {% if session['logged_in'] %}
-    <h1>Loans Test </h1>
+    <table border="1">
+         <thead>
+            <tr><td>Book</td><td>Date checked out</td>
+			<td>Date Due Back</td>
+         </tr></thead>
+          <tbody>
+          {% for index, row in rows.iterrows() %} <!-- loop through table and print info in various rows-->
+          <tr>
+               <td>{{row["b.bookName"]}}</td><td>{{row["lo.checkedOut"]}}</td>
+			   <td>{{row["lo.returnBy"]}}</td>
+            </tr>
+      {% endfor %}
+          </tbody>
+      </table>
+
+      <a href="/">Go back to home page</a>
 
 {% endif %}
-
-	  <!--a href = anchor, creates link to route in quotes. both /enternew and /list
-	  have routes defined in newHospitalUsers program, which route to corresponding htmls-->
-      
-   
-
 </body></html>

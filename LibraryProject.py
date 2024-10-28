@@ -792,6 +792,10 @@ def search_results():
         sec_lvl = session['admin']              # get security level
         un = session['username']                # get username
 
+        # save search results for a user's global search
+        session['srch'] = srch
+        session['cat'] = cat
+
         # connect to db
         with sql.connect("Library.db") as con:
             con.row_factory = sql.Row
@@ -869,6 +873,51 @@ def search_results():
             df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'b.author', 'b.description', 'b.genre', 'l.libraryName', 'b.dewey'])
             return render_template('searchResults.html', rows = df)
     return render_template('search.html')
+
+@app.route('/searchAll')
+def search_all():
+    srch = session['srch']
+    cat = session['cat']
+
+    with sql.connect("Library.db") as con:
+        con.row_factory = sql.Row
+        cur = con.cursor()
+        # if user wants to search by book
+        if cat == 'book':
+            # return book name, author, description, genre, library name, and dewey decimal number
+            sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                            FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
+                            WHERE b.bookName LIKE ?;'''
+            cur.fetchall()
+            cur.execute(sql_query, ('%' + srch + '%',))
+        # if user wants to search by author
+        elif cat == 'author':
+            # return book name, author, description, genre, library name, and dewey decimal number
+            sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                            FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
+                            WHERE b.author LIKE ?;'''
+            cur.fetchall()
+            cur.execute(sql_query, ('%' + srch + '%',))
+        # if user wants to search by genre
+        elif cat == 'genre':
+            # return book name, author, description, genre, library name, and dewey decimal number
+            sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                            FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
+                            WHERE b.genre LIKE ?;'''
+            cur.fetchall()
+            cur.execute(sql_query, ('%' + srch + '%',))
+        # if user wants to search by library
+        elif cat == 'library':
+            # return book name, author, description, genre, library name, and dewey decimal number
+            sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                            FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
+                            WHERE l.libraryName LIKE ?;'''
+            cur.fetchall()
+            cur.execute(sql_query, ('%' + srch + '%',))
+    # build data frame to send
+    df = pd.DataFrame(cur.fetchall(),
+                      columns=['b.bookName', 'b.author', 'b.description', 'b.genre', 'l.libraryName', 'b.dewey'])
+    return render_template('searchResults.html', rows=df)
 
 # October 18th merge update:
 # Josh:

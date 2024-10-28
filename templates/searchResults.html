@@ -27,6 +27,9 @@
         {% endfor %}
         </tbody>
     </table>
+    {% if session['admin'] == 1 or session['admin'] == 2 %}
+        <a href="{{ url_for('search_all') }}">Search all libraries</a><br>
+    {% endif %}
     <a href="/search">Back to search</a><br>
     <a href="/">Back to home</a>
 </body>

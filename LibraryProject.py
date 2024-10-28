@@ -874,6 +874,9 @@ def search_results():
             return render_template('searchResults.html', rows = df)
     return render_template('search.html')
 
+# October 28th update - Shawnie Houston
+# Below will allow standard users and librarians to do a global search after a local search.
+# Global search will use search data from the previous local search.
 @app.route('/searchAll')
 def search_all():
     srch = session['srch']

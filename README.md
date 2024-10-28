@@ -23,3 +23,12 @@
 
 - Added functionality to add and remove books to database
 - Level 3 users can choose which library, level 2 users can only add/remove from the library associated with their account
+
+
+<h3>Update (October 28th):</h3>
+
+- Added triggers to LibraryCreateDB.py; these are used as a fallback in case the ON DELETE statements don't work (they didn't work for me while I was testing them.
+
+- Added comments to the add/remove library functions I wrote some time ago.
+
+- Code written by Pablo.

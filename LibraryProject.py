@@ -29,6 +29,9 @@ app = Flask(__name__)
 def home():
     if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
         return render_template('login.html')
+    # Logic to handle case where library gets deleted. Directs user to enter new library
+    elif session.get('UserLocalLibraryName') == -1:
+        return render_template('changeLibrary.html')
     else:
         return render_template('home.html', name=session['name'], UserLocalLibrary=session['UserLocalLibraryName'])
     # October 16th merge update:
@@ -331,6 +334,9 @@ def do_admin_login():
             row2 = cur.fetchone()
             if (row2 != None):
                 session['UserLocalLibraryName'] = row2['libraryName']
+            # Handles deleted libraries
+            else:
+                session['UserLocalLibraryName'] = -1
 
             # below if statements to set users security level, which is held in the session['admin'] variable
             # this comes from sql table
@@ -803,7 +809,7 @@ def library_list():
     con.close()
     return jsonify(library_names)
 
-#
+# Function to add new book to library inventory
 @app.route('/enterNew', methods=['POST', 'GET'])
 def enterNew():
     if not session.get('logged_in'):
@@ -861,7 +867,6 @@ def enterNew():
                     #cur.fetchone returns a tuple. only want to access 1st element
                     result = cur.fetchone()
                     libID = result[0]
-                    print(libID)
                     cur.execute("INSERT INTO Books (libraryID,"
                                 "bookName,"
                                 "author,"
@@ -889,12 +894,10 @@ def enterNew():
         elif request.form.get('RemoveBook'):
             message = ""  # initialization of blank string for error message
             try:
-                print(f"{selected_library} 1")
                 title = request.form['RemoveBookTitle']
                 author = request.form['RemoveBookAuthor']
                 pub = request.form['RemoveBookPublisher']
                 isbn = request.form['RemoveBookISBN']
-                print(f"{selected_library} 2")
                 with sql.connect("Library.db") as con:
                     con.row_factory = sql.Row
                     cur = con.cursor()
@@ -905,19 +908,13 @@ def enterNew():
                                         join Libraries on Books.libraryID = libraries.libraryID \
                                         where bookName = ? and author = ? and publisher = ? and isbn13 = ? and libraryName = ?"""
                     cur.execute(sql_select_query, (title,author,pub,isbn,selected_library))
-                    print(f"{selected_library} 3")
-                    print(f"{selected_library} 4")
                     row = cur.fetchone()
-                    print(f"{selected_library} 5")
                     if (row != None):  # this is true if a record is found
-                        print(f"{selected_library} 6")
                         sql_delete_query = """Delete from Books where bookID in (  \
                                                                select Books.bookID from Books \
                                                                join Libraries on Books.libraryID = libraries.libraryID \
                                                                where bookName = ? and author = ? and publisher = ? and isbn13 = ? and libraryName = ?)"""
-                        print(f"{selected_library} 7")
                         cur.execute(sql_delete_query, (title, author, pub, isbn, selected_library))
-                        print(f"{selected_library} 8")
                         con.commit()
                         message = message + "Inventory successfully deleted\n"
                     else:
@@ -937,6 +934,45 @@ def enterNew():
     else:
         abort(404)
 
+# October 28th 2024 update
+# Josh Knorr
+# Added code to handle case where user's home library gets deleted. Route to html page to choose new library
+
+@app.route('/changeLibrary', methods=['POST', 'GET'])
+def changeLibrary():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        # this needs to be here or page won't render when accessed directly from home link
+        if request.method == 'POST':
+            message = ''
+            selected_library = request.form.get('selectedLibrary')
+            try:
+                with sql.connect("Library.db") as con:
+                    cur = con.cursor()
+                    # selected library needs to be in parentheses with a comma to force it to be parsed as string
+                    cur.execute("Select libraryID from Libraries where libraryName = ?", (selected_library,))
+                    # cur.fetchone returns a tuple. only want to access 1st element
+                    result = cur.fetchone()
+                    print(result)
+                    libID = result[0]
+                    cur.execute("UPDATE LibUsers SET libraryID = ? WHERE userLogon = ? "
+                                , (libID, session.get('username')))
+                    con.commit()
+                    message = message + "Library successfully updated.\n"
+
+            except Exception as e:
+                con.rollback()
+                print(f"Error: {e}")
+                message = message + "error in update operation\n" + f"Error: {e}"
+
+            finally:
+                message = message.split('\n')
+                session['UserLocalLibraryName'] = selected_library
+                return render_template("result.html", msg=message)
+                con.close()
+
+        return render_template('changeLibrary.html')
 
 @app.route("/logout")
 # if user clicks logout link, resets variables

@@ -27,3 +27,9 @@
 - Added functionality for standard users to see their borrowed books
 - Added functionality for librarians and admins to view loaned books
 - Above three written by Shawnie
+
+- <h3>Update (October 28th pt 2):</h3>
+
+- Added functionality to check if user had their library deleted. If so, forces selection of new library
+- Added functionality for all users to change their libraries
+- Written by Josh 

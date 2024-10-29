@@ -655,6 +655,7 @@ def showLibs():
         flash("You must have security level 3 to access this page...")
         return render_template('home.html')
 
+    # Fetches library data to display them as a list in listLibraries.html
     else:
         con = sql.connect("Library.db")
         con.row_factory = sql.Row
@@ -673,11 +674,14 @@ def deleteLib():
         flash("You must have security level 3 to access this page...")
         return render_template('home.html')
 
+    # Code is similar to upgradeUser() function
     else:
         libID = request.args.get('libID', default=-1, type=int)
 
+        # -1 is the default value for a libraryID, set if obtaining an ID somehow failed
         if libID != -1:
             try:
+                # If a valid ID was found, however, delete it
                 con = sql.connect("Library.db")
                 cur = con.cursor()
                 cur.execute(f"DELETE FROM Libraries WHERE libraryID={libID}")
@@ -705,6 +709,7 @@ def addLibForm():
         flash("You must have security level 3 to access this page...")
         return render_template('home.html')
 
+    # Redirects the user to a page where they can add a library with details of their choice
     else:
         return render_template('addLibrary.html')
 
@@ -717,6 +722,7 @@ def addLib():
         flash("You must have security level 3 to access this page...")
         return render_template('home.html')
 
+    # Obtains data the user entered in addLibrary.html for a new library
     elif request.method == 'POST':
         nm = request.form['libName']
         ad = request.form['libAddress']
@@ -724,6 +730,7 @@ def addLib():
         st = request.form['libState']
         zp = request.form['libZip']
 
+        # Adds a new library to the database with this data
         try:
             with sql.connect("Library.db") as con:
                 cur = con.cursor()

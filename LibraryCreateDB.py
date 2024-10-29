@@ -138,6 +138,33 @@ CREATE TABLE IF NOT EXISTS Libraries (
 ''')
 
 
+# October 28th merge update:
+# Added triggers as a fallback to the ON DELETE statements in case they don't work
+# Added by Pablo
+
+cur.execute('''CREATE TRIGGER Books_OnDeleteCascade
+AFTER DELETE ON Libraries
+FOR EACH ROW
+BEGIN
+    DELETE FROM Books WHERE libraryID = OLD.libraryID;
+END''')
+
+cur.execute('''CREATE TRIGGER LibUsers_OnDeleteSetDefault
+AFTER DELETE ON Libraries
+FOR EACH ROW
+BEGIN
+    UPDATE LibUsers
+    SET libraryID = -1
+    WHERE libraryID = OLD.libraryID;
+END''')
+
+cur.execute('''CREATE TRIGGER Loans_OnDeleteCascade
+AFTER DELETE ON Books
+FOR EACH ROW
+BEGIN
+    DELETE FROM Loans WHERE bookID = OLD.bookID;
+END''')
+
 
 # Insert sample data into Books
 books = [

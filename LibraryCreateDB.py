@@ -100,8 +100,8 @@ cur.execute('''
 CREATE TABLE IF NOT EXISTS Loans (
     bookID INTEGER NOT NULL,
     userLogon TEXT NOT NULL,
-    checkedOut DATETIME NOT NULL,
-    returnBy DATETIME NOT NULL,
+    checkedOut DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    returnBy DATETIME NOT NULL DEFAULT (DATETIME(CURRENT_TIMESTAMP, '+21 days')),
     PRIMARY KEY (bookID, userLogon),
     FOREIGN KEY (bookID) REFERENCES Books(bookID) ON DELETE CASCADE,
     FOREIGN KEY (userLogon) REFERENCES LibUsers(userLogon)
@@ -226,13 +226,20 @@ loans = [
     (5, 'dlee', datetime.now(), datetime.now() + timedelta(days=21)),
     (6, 'ewilliams', datetime.now(), datetime.now() + timedelta(days=21)),
     (7, 'fgarcia', datetime.now(), datetime.now() + timedelta(days=21)),
-    (8, 'hclark', datetime.now(), datetime.now() + timedelta(days=21)),
 ]
+
+loans_default = [(8, 'hclark')]
 
 cur.executemany('''
 INSERT INTO Loans (bookID, userLogon, checkedOut, returnBy) 
 VALUES (?, ?, ?, ?)
 ''', loans)
+
+
+cur.executemany('''
+INSERT INTO Loans (bookID, userLogon) 
+VALUES (?, ?)
+''', loans_default)
 
 # Insert sample data into Libraries
 libraries = [

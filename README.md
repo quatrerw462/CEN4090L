@@ -33,4 +33,9 @@
 
 - Added functionality to check if user had their library deleted. If so, forces selection of new library
 - Added functionality for all users to change their libraries
-- Written by Josh 
+- Written by Josh
+
+<h3>Update (October 31st):</h3>
+
+- Added default values to checkedOut and returnBy attributes in Loans table
+- Written by Josh

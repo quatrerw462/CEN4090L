@@ -39,3 +39,11 @@
 
 - Added default values to checkedOut and returnBy attributes in Loans table
 - Written by Josh
+
+  
+<h3>Update (November 3rd):</h3>
+
+- Added check out functionality, merged with search
+- Changed how loans works, now displays books checked out by logged in user vs user's home library
+- Written by Josh
+

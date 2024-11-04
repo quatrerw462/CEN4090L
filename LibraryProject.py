@@ -47,6 +47,10 @@ def create_account():
 # definition of list borrowed materials, return loans.html
 # October 27th update - Shawnie Houston
 # Added the logic to display the user's currently borrow materials
+
+# November 3rd update - Josh Knorr
+# Changed how a user's checked out books are searched for - searches for user name match vs library match
+
 @app.route('/loans')
 def loans():
     if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
@@ -55,31 +59,19 @@ def loans():
         con = sql.connect("Library.db")
         con.row_factory = sql.Row
         cur = con.cursor()
-        ul = session['UserLocalLibrary']
+        user_logon = session['username']
 
         # get book name, checked out date, and return by date of logged in user's books
-        sql_query = '''SELECT b.bookName, lo.checkedOut, lo.returnBy \
+        sql_query = '''SELECT b.bookName, lo.checkedOut, lo.returnBy, lib.libraryName \
                         FROM Loans lo
                         JOIN Books b ON b.bookID = lo.bookID
                         JOIN Libraries lib ON lib.libraryID = b.libraryID
-                        WHERE b.libraryID = ?;'''
+                        WHERE lo.userLogon = ?;'''
 
-        cur.execute(sql_query, (ul,))
+        cur.execute(sql_query, (user_logon,))
 
-        df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'lo.checkedOut', 'lo.returnBy'])
+        df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'lo.checkedOut', 'lo.returnBy','lib.libraryName'])
         return render_template("loans.html", rows = df)
-
-# definition of check out materials, return checkOut.html
-@app.route('/checkOut')
-def check_out():
-    if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
-        return render_template('loans.html')
-    else:
-        con = sql.connect("Library.db")
-        con.row_factory = sql.Row
-        cur = con.cursor()
-        return render_template('checkOut.html', name=session['name'], UserLocalLibrary=session['UserLocalLibraryName'])
-
 
 
 # definition of showUser, return show.html
@@ -797,6 +789,11 @@ def search():
 # local library. Admins will see results for all libraries
 # Still need to implement a way for standard users and librarians to be able to do a global search if they want
 # to search more libraries.
+
+# November 3rd Update - Josh Knorr
+# added functionality to communicate with HTML page when a book is in loans table
+# if this returns true, then the book will be unavailable for check out
+
 @app.route('/searchResults', methods=['POST'])
 def search_results():
     if request.method == 'POST':
@@ -819,33 +816,33 @@ def search_results():
                 # if user wants to search books
                 if cat == 'book':
                     # get data with username match and partial book name match
-                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
-                    FROM Books b \
+                    sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                    CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available FROM Books b \
                     JOIN Libraries l ON l.libraryID = b.libraryID \
                     JOIN LibUsers u ON u.libraryID = l.libraryID \
-                    WHERE u.userLogon = ? \
+                    LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE u.userLogon = ? \
                     AND b.bookName LIKE ?;'''
                     cur.fetchall()
                     cur.execute(sql_query, (un, '%'+srch+'%',))
                 # if user wants to search by author
                 elif cat == 'author':
                     # get data with username match and partial author name match
-                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
-                    FROM Books b \
+                    sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                    CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available FROM Books b \
                     JOIN Libraries l ON l.libraryID = b.libraryID \
                     JOIN LibUsers u ON u.libraryID = l.libraryID \
-                    WHERE u.userLogon = ? \
+                    LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE u.userLogon = ? \
                     AND b.author LIKE ?;'''
                     cur.fetchall()
                     cur.execute(sql_query, (un, '%'+srch+'%',))
                 # if user wants to search by genre
                 elif cat == 'genre':
                     # get data with username match and partial genre name match
-                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
-                    FROM Books b \
+                    sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                    CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available FROM Books b \
                     JOIN Libraries l ON l.libraryID = b.libraryID \
                     JOIN LibUsers u ON u.libraryID = l.libraryID \
-                    WHERE u.userLogon = ? \
+                    LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE u.userLogon = ? \
                     AND b.genre LIKE ?;'''
                     cur.fetchall()
                     cur.execute(sql_query, (un, '%'+srch+'%',))
@@ -853,37 +850,41 @@ def search_results():
                 # if user wants to search by book
                 if cat == 'book':
                     # return book name, author, description, genre, library name, and dewey decimal number
-                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                    CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available \
                     FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                    WHERE b.bookName LIKE ?;'''
+                    LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE b.bookName LIKE ?;'''
                     cur.fetchall()
                     cur.execute(sql_query, ('%' + srch + '%',))
                 # if user wants to search by author
                 elif cat == 'author':
                     # return book name, author, description, genre, library name, and dewey decimal number
-                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                    CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available \
                     FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                    WHERE b.author LIKE ?;'''
+                    LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE b.author LIKE ?;'''
                     cur.fetchall()
                     cur.execute(sql_query, ('%' + srch + '%',))
                 # if user wants to search by genre
                 elif cat == 'genre':
                     # return book name, author, description, genre, library name, and dewey decimal number
-                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                    CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available \
                     FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                    WHERE b.genre LIKE ?;'''
+                    LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE b.genre LIKE ?;'''
                     cur.fetchall()
                     cur.execute(sql_query, ('%' + srch + '%',))
                 # if user wants to search by library
                 elif cat == 'library':
                     # return book name, author, description, genre, library name, and dewey decimal number
-                    sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+                    sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                    CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available \
                     FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                    WHERE l.libraryName LIKE ?;'''
+                    LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE l.libraryName LIKE ?;'''
                     cur.fetchall()
                     cur.execute(sql_query, ('%'+srch+'%',))
             # build data frame to send
-            df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'b.author', 'b.description', 'b.genre', 'l.libraryName', 'b.dewey'])
+            df = pd.DataFrame(cur.fetchall(), columns=['b.bookID','b.bookName', 'b.author', 'b.description', 'b.genre', 'l.libraryName', 'b.dewey', 'available'])
             return render_template('searchResults.html', rows = df)
     return render_template('search.html')
 
@@ -901,38 +902,42 @@ def search_all():
         # if user wants to search by book
         if cat == 'book':
             # return book name, author, description, genre, library name, and dewey decimal number
-            sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+            sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                            CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available \
                             FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                            WHERE b.bookName LIKE ?;'''
+                            LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE b.bookName LIKE ?;'''
             cur.fetchall()
             cur.execute(sql_query, ('%' + srch + '%',))
         # if user wants to search by author
         elif cat == 'author':
             # return book name, author, description, genre, library name, and dewey decimal number
-            sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+            sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                            CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available \
                             FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                            WHERE b.author LIKE ?;'''
+                            LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE b.author LIKE ?;'''
             cur.fetchall()
             cur.execute(sql_query, ('%' + srch + '%',))
         # if user wants to search by genre
         elif cat == 'genre':
             # return book name, author, description, genre, library name, and dewey decimal number
-            sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+            sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                            CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available \
                             FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                            WHERE b.genre LIKE ?;'''
+                            LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE b.genre LIKE ?;'''
             cur.fetchall()
             cur.execute(sql_query, ('%' + srch + '%',))
         # if user wants to search by library
         elif cat == 'library':
             # return book name, author, description, genre, library name, and dewey decimal number
-            sql_query = '''SELECT b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey \
+            sql_query = '''SELECT b.bookID, b.bookName, b.author, b.description, b.genre, l.libraryName, b.dewey, \
+                            CASE WHEN lo.bookID IS NULL THEN 1 ELSE 0 END AS available \
                             FROM Books b JOIN Libraries l ON b.libraryID = l.libraryID \
-                            WHERE l.libraryName LIKE ?;'''
+                            LEFT JOIN Loans lo ON b.bookID = lo.bookID WHERE l.libraryName LIKE ?;'''
             cur.fetchall()
             cur.execute(sql_query, ('%' + srch + '%',))
     # build data frame to send
     df = pd.DataFrame(cur.fetchall(),
-                      columns=['b.bookName', 'b.author', 'b.description', 'b.genre', 'l.libraryName', 'b.dewey'])
+                      columns=['b.bookID','b.bookName', 'b.author', 'b.description', 'b.genre', 'l.libraryName', 'b.dewey', 'available'])
     return render_template('searchResults.html', rows=df)
 
 # October 18th merge update:
@@ -1114,6 +1119,34 @@ def changeLibrary():
                 con.close()
 
         return render_template('changeLibrary.html')
+
+
+# November 3rd update - Josh Knorr
+# code to handle check out button - when clicked from search results, will check out book and add to loans table
+@app.route('/checkOut', methods=['POST', 'GET'])
+def check_out():
+    if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
+        return render_template('login.html')
+    else:
+        book_id = request.json.get('bookID')
+        user_logon = request.json.get('userLogon')  # Assuming you have a way to get the user's logon
+
+        if not book_id or not user_logon:
+            return jsonify({'error': 'Missing bookID or userLogon'}), 400
+
+        try:
+            con = sql.connect("Library.db")
+            con.row_factory = sql.Row
+            cur = con.cursor()
+            cur.execute("INSERT INTO Loans (bookID,userLogon) Values (?,?)",(book_id,user_logon))
+            con.commit()
+            return jsonify({'success': True, 'message': 'Book checked out successfully'}), 200
+
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'Failed to check out the book'}), 500
+
+
 
 @app.route("/logout")
 # if user clicks logout link, resets variables

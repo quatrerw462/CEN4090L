@@ -16,14 +16,18 @@
 {% if session['logged_in'] %}
     <table border="1">
          <thead>
-            <tr><td>Book</td><td>Date checked out</td>
+            <tr><td>Book</td>
+			<td>Date checked out</td>
 			<td>Date Due Back</td>
+			<td>Return To</td>
          </tr></thead>
           <tbody>
           {% for index, row in rows.iterrows() %} <!-- loop through table and print info in various rows-->
           <tr>
-               <td>{{row["b.bookName"]}}</td><td>{{row["lo.checkedOut"]}}</td>
+               <td>{{row["b.bookName"]}}</td>
+			   <td>{{row["lo.checkedOut"]}}</td>
 			   <td>{{row["lo.returnBy"]}}</td>
+			   <td>{{row["lib.libraryName"]}}</td>
             </tr>
       {% endfor %}
           </tbody>

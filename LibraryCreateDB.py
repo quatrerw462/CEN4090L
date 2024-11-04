@@ -176,6 +176,7 @@ books = [
     (3, 'Pride and Prejudice', 'Jane Austen', 'T. Egerton', '9781503290563', 'A romantic novel that critiques the British landed gentry.', 'Fiction', '823.7'),
     (4, 'The Old Man and the Sea', 'Ernest Hemingway', 'Charles Scribner\'s Sons', '9780684830490', 'A story of an aging fisherman\'s struggle.', 'Fiction', '813.54'),
     (4, 'The Road', 'Cormac McCarthy', 'Alfred A. Knopf', '9780307387899', 'A post-apocalyptic novel.', 'Fiction', '813.54'),
+    (4, '1984', 'George Orwell', 'Harcourt', '9780451524935', 'Dystopian novel about totalitarianism.', 'Fiction', '823.912'),
 ]
 
 cur.executemany('''

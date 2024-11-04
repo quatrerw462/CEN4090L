@@ -20,13 +20,14 @@
 	<h2><a href="/showUser">Show Library User</a></h2>
 	<h2><a href="/changeLibrary">Change Local Library</a></h2>
 	<h2><a href="/loans">View Your Borrowed Materials</a></h2>
-	<h2><a href="/checkOut">Check Out Materials</a></h2>
-	<h2><a href="/search">Search for Materials</a></h2>
-        {% if session['admin'] == 2 or session['admin'] == 3 %} 
+	<h2><a href="/search">Search for and Check Out Materials</a></h2>
+        {% if session['admin'] == 2 %} 
 			<h2><a href="/enterNew">Add/remove material to/from inventory</a></h2>
 			<h2><a href="/list">View loaned material by {{UserLocalLibrary}}</a></h2>
 		{% endif %}
 		{% if session['admin'] == 3 %} 
+			<h2><a href="/enterNew">Add/remove material to/from inventory</a></h2>
+			<h2><a href="/list">View loaned material by all Libraries in network</a></h2>
 			<h2><a href="/showLibs">Add/Remove library to/from network</a></h2>
             <!--Link redirecting to the request list page. Only level 3 users can see this-->
             <!--Minor change by Pablo-->

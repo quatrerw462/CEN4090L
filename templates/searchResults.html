@@ -4,7 +4,33 @@
     <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 </head>
 <body data-gr-c-s-loaded="true" style="margin: 0px;">
+<script>
+    function handleButtonClick(bookName, bookID) {
 
+        const userLogon = "{{ session['username'] }}"; 
+
+        fetch('/checkOut', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ bookID: bookID, userLogon: userLogon })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(bookName + " checked out successfully!");
+                location.reload(); // Reload the page to update the button state
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred while checking out the book.");
+        });
+    }
+</script>
     <table border="1">
         <thead>
             <tr><td>Book</td>
@@ -23,6 +49,13 @@
             <td>{{row["b.genre"]}}</td>
             <td>{{row["l.libraryName"]}}</td>
             <td>{{row["b.dewey"]}}</td>
+			<td>                 
+			{% if row["available"] == 1 %}
+                    <button type="button" onclick="handleButtonClick('{{ row['b.bookName'] }}', '{{ row['b.bookID'] }}')">Check Out</button>
+                {% else %}
+                    <button type="button" disabled style="color: gray; cursor: not-allowed;">Unavailable</button>
+            {% endif %}
+			</td>
         </tr>
         {% endfor %}
         </tbody>

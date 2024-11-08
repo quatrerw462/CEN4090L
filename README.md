@@ -47,3 +47,11 @@
 - Changed how loans works, now displays books checked out by logged in user vs user's home library
 - Written by Josh
 
+<h3>Update (November 8th):</h3>
+
+- Created base.html template to be used as parent for all the other .html templates (makes it a lot more concise for styling and global elements)
+- Added graphical elements (LitManager logo as a vector for lossless scalability, books texture to be overlayed over the background)
+- Created style.css to be the center for the UI's theme customization. It is divided into sections and includes text styling, background styling, button styling, etc.
+- Borrowed a 'particles' java-script library created by Vincent Garreau a few years ago (https://github.com/VincentGarreau/particles.js); it will only be used for styling. It has been customized to fit with our project's color scheme (FSU colors).
+
+

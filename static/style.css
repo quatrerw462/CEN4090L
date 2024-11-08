@@ -1,0 +1,166 @@
+/* FIRE SANS FONT STYLE CLASSES */
+.fira-sans-thin { font-family: "Fira Sans", sans-serif; font-weight: 100; }
+.fira-sans-extralight { font-family: "Fira Sans", sans-serif; font-weight: 200; }
+.fira-sans-light { font-family: "Fira Sans", sans-serif; font-weight: 300; }
+.fira-sans-regular { font-family: "Fira Sans", sans-serif; font-weight: 400; }
+.fira-sans-medium { font-family: "Fira Sans", sans-serif; font-weight: 500; }
+.fira-sans-semibold { font-family: "Fira Sans", sans-serif; font-weight: 600; }
+.fira-sans-bold { font-family: "Fira Sans", sans-serif; font-weight: 700; }
+.fira-sans-extrabold { font-family: "Fira Sans", sans-serif; font-weight: 800; }
+.fira-sans-black { font-family: "Fira Sans", sans-serif; font-weight: 900; }
+
+/*
+TEXT STYLE FEATURES
+Worked on by Isaias Quintero, 11/7/2024
+*/
+
+/* General Body Styling */
+html, body {
+    font-family: "Fira Sans", sans-serif;
+    color: #ffffff;
+    background-color: #782f40; /* Garnet color code */
+    text-align: center;
+    position: relative;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 60px; /* Adjust this value to match or slightly exceed footer height */
+}
+
+/* Styling the <h2> links as buttons */
+h2 a {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #d3d3d3;
+    color: #000000;
+    text-decoration: none;
+    font-family: 'Fira Sans', sans-serif;
+    font-weight: 400;
+    border-radius: 8px;
+    transition: background-color 0.4s ease;
+}
+
+h2 a:hover { background-color: #CEB888; }
+h2 a:active { background-color: #005c4d; }
+
+/* Styling the 'create account' link as button */
+.btn-create-account {
+    background-color: #782F40;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.btn-create-account:hover { background-color: #5e1f2e; }
+
+/* Container to center form elements */
+.login-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Input field styling */
+.input-field {
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+/* Log in button style */
+.btn-login {
+    font-family: 'Fira Sans', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    background-color: #CEB888;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.btn-login:hover { background-color: #5e1e2c; }
+
+/* Footer styles */
+.footer {
+    background-color: #000000;
+    color: #ffffff;
+    text-align: center;
+    padding: 30px 0;
+    position: fixed;
+    bottom: 0;
+    height: 70px;
+    width: 100%;
+    font-family: "Fira Sans", sans-serif;
+    font-weight: 200;
+    z-index: 2;
+}
+
+/*
+BACKGROUND STYLE FEATURES
+Worked on by Isaias Quintero, 11/7/2024
+*/
+
+/* Texture overlay layer */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(120, 47, 64, 0.5) 25%,
+            rgba(120, 47, 64, 0) 60%,
+            rgba(120, 47, 64, 3.0) 75%
+        ),
+        url("/static/BooksTexture.svg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    opacity: 0.25;
+    z-index:0;
+    pointer-events: none;
+}
+
+/* Content container to layer above the overlay */
+body > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* Logo container */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin: 0px 0;
+}
+
+.logo-container img {
+    max-width: 600px;
+    height: auto;
+}
+
+/* Particles container styling */
+#particles-js {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: -1;
+}

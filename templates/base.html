@@ -1,0 +1,101 @@
+<!-- base.html, created by Isaias on 11/8/2024 to be used for the other templates style-wise -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LitManager{% endblock %}</title>
+     <!-- this base template will reference our style.css so every other template that extends from this one will inherit the style as well -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Fira Sans font link added here -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+</head>
+
+<!-- The below javascript library is Copyright (c) 2015, Vincent Garreau.
+     The license for its use is free and open. We are merely using it for styling purposes of our project.
+     GitHub project link: https://github.com/VincentGarreau/particles.js
+-->
+<script src="{{ url_for('static', filename='js/particles.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        particlesJS('particles-js', {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#ceb888"  // FSU Gold color for the polygon shape
+                },
+                "shape": {
+                    "type": "polygon",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#fff"
+                    }
+                },
+                "opacity": {
+                    "value": 0.4,
+                    "random": false,
+                    "anim": {
+                    "enable": false,
+                    "speed": 1,
+                    "opacity_min": 0.1,
+                    "sync": false
+                    }
+                },
+                "size": {
+                    "value": 3,
+                    "random": true,
+                    "anim": {
+                        "enable": true,
+                        "speed": 4,
+                        "size_min": 0.3
+                    }
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 3,
+                    "direction": "none",
+                    "random": true,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false,
+                    "attract": {
+                        "enable": false
+                    }
+                }
+            },
+            "interactivity": {
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "repulse"
+                    }
+                }
+            },
+            "retina_detect": true
+        });
+    });
+</script>
+    <!-- I'm embedding the particle configuration settings here directly because for some reason,
+    it does not reference the .json file like I want it to - Isaias -->
+
+<body>
+    <!-- Content from other templates will go here -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer block -->
+    <footer class="footer">
+        <p>© 2024 | CEN4090L-0002.fa24 | Software Engineering Capstone Project.</p>
+        <p>LitManager project developed by Pablo Guardia, Shawnie Houston, Joshua Knorr & Isaias Quintero.</p>
+    </footer>
+</body>
+</html>

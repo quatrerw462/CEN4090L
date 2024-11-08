@@ -1,31 +1,41 @@
-<!DOCTYPE html>
-<!-- based off of login.html document provided by dr works -->
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login Screen</title>
-</head>
-<body>
-<form action="/login" method="POST">
-        {% with messages = get_flashed_messages() %}
-         {% if messages %}
-            <ul>
-               {% for message in messages %}
-               <li>{{ message }}</li>
-               {% endfor %}
-            </ul>
-         {% endif %}
-    {% endwith %}
+{% extends "base.html" %}
+<!-- based off of login.html document provided by dr works
+    Update by Isaias 11/8/2024: based off of a new base.html from which this one extends,
+     just to apply the footer and the fonts without bloating each template. -->
+{% block title %}Login{% endblock %}
 
-<h1>Login</h1>
-<input type="text"  value="" placeholder="username" name="username"> <br />
-<label  for="login-name"></label>
-<input type="password"  value="" placeholder="password" name="password">  <br />
-<input type="submit" value="Log in">
+{% block content %}
+<div class="login-container">
+<div class="logo-container">
+    <img src="{{ url_for('static', filename='LitManagerLogo.svg') }}" alt="Logo">
+</div>
+<!-- adding logo to home -->
 
-<h1>New User?</h1>
-<h2><a href="/createAccount">Create Account</a></h2>
+<div id="particles-js"></div>
+<!-- references the particles effect, added by Isaias on 11/8/2024 -->
 
-</form>
-</body>
-</html>
+        <h1 class="fira-sans-semibold">Login</h1>
+        <form action="/login" method="POST">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            <input type="text" name="username" placeholder="Username" required class="input-field"><br>
+            <input type="password" name="password" placeholder="Password" required class="input-field"><br>
+            <input type="submit" value="Log in" class="btn-login">
+            <!-- preparing fields and "Log in" button to reference style.css -->
+        </form>
+        <h2 class="fira-sans-light">New User?</h2>
+        <a href="/createAccount">
+             <button type="button" class="btn-create-account">Create Account</button>
+        </a>
+    </div>
+<!-- adding a "forgot your password? template here would also be realistic,
+    but maybe some other time - Isaias -->
+
+{% endblock %}

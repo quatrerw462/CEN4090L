@@ -137,7 +137,7 @@ def addrec():
         cty = request.form['City']
         st = request.form['State']
         zip = request.form['Zip']
-        ll = request.form['LocalLibrary']
+        ll = request.form.get('selectedLibrary')
         pwd = request.form['Password']
 
         usrnm = str(usrnm).strip()  # removes whitespace

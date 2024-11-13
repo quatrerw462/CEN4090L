@@ -13,7 +13,30 @@
             </ul>
          {% endif %}
     {% endwith %}
+<script>
+	// Function to fetch the unique library names and populate the dropdown
+	async function loadLibraryDropdown() {
+		try {
+			const response = await fetch('/libraryList');
+			const libraries = await response.json();
+			const dropdowns = document.querySelectorAll('.libraryDropdown');
 
+			dropdowns.forEach(dropdown => {
+				dropdown.innerHTML = '<option value="">Select...</option>'; // Reset options
+				libraries.forEach(library => {
+					const option = document.createElement('option');
+					option.value = library;
+					option.textContent = library;
+					dropdown.appendChild(option);
+              });
+           });
+		} catch (error) {
+			console.error("Error fetching libraries:", error);
+		}
+	}
+	window.onload = loadLibraryDropdown; 
+			
+</script>
 <!-- creation of form to feed into addrec -->     
       <form action="{{ url_for('addrec') }}"  method="POST">
          <h3>Create Account</h3>
@@ -45,8 +68,11 @@
          <!--Security Level field was removed. Minor change by Pablo-->
 
 		 Local Library<br>
-		 <input type ="text" name="LocalLibrary"><br><br>
-		 
+		 <label for="libraryDropdown"></label>
+		 <select class="libraryDropdown"name = "selectedLibrary">
+			 <option value="">Select...</option>
+		 </select>
+		 <br><br>
          Login Password<br>
          <input type="password" name="Password"><br><br>
          <input type="submit" value="submit"><br>

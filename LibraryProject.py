@@ -276,7 +276,7 @@ def list():
         # October 27th - Shawnie Houston
         # Updated SQL query so the FROM is for loans and it's searching based on Books' libraryID
         # Previous query was returning wrong library
-        sql_query = '''SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy \
+        sql_query = '''SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy, b.bookID \
                 FROM Loans lo
                 JOIN LibUsers u ON u.userLogon = lo.userLogon
                 JOIN Books b ON b.bookID = lo.bookID
@@ -285,7 +285,7 @@ def list():
 
         cur.execute(sql_query, (ul,))
 
-        df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'u.firstName', 'u.lastName', 'lib.libraryName', 'lo.checkedOut', 'lo.returnBy'])
+        df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'u.firstName', 'u.lastName', 'lib.libraryName', 'lo.checkedOut', 'lo.returnBy', 'b.bookID'])
         df['u.firstName'] = df['u.firstName'].apply(lambda x: cipher.decrypt(x)) # Decrypts user's first name
         df['u.lastName'] = df['u.lastName'].apply(lambda x: cipher.decrypt(x)) # Decrypts user's last name
         return render_template("list.html", rows = df)
@@ -1142,7 +1142,30 @@ def check_out():
             print(e)
             return jsonify({'error': 'Failed to check out the book'}), 500
 
+# November 11th - Shawnie Houston
+# Handles check in button
+# When button is clicked, book will be removed from Loans table
+@app.route('/checkIn', methods=['POST', 'GET'])
+def check_in():
+    if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
+        return render_template('login.html')
+    else:
+        book_id = request.json.get('bookID')
 
+        if not book_id:
+            return jsonify({'error': 'Missing bookID'}), 400
+
+        try:
+            con = sql.connect("Library.db")
+            con.row_factory = sql.Row
+            cur = con.cursor()
+            cur.execute("DELETE FROM Loans WHERE bookID = ?",(book_id,))
+            con.commit()
+            return jsonify({'success': True, 'message': 'Book checked in successfully'}), 200
+
+        except Exception as e:
+            print(e)
+            return jsonify({'error': 'Failed to check in the book'}), 500
 
 @app.route("/logout")
 # if user clicks logout link, resets variables

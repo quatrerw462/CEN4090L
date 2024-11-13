@@ -17,6 +17,32 @@
 <!--need to add validation below to ensure users are both logged in and admins
 need to also make sure they cant access page by typing in route directly into browser-->
 
+<script>
+    function handleButtonClick(bookName, bookID) {
+
+        fetch('/checkIn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ bookID: bookID })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(bookName + " checked in successfully!");
+                location.reload();
+            } else {
+                alert("Error: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("An error occurred while checking in the book.");
+        });
+    }
+</script>
+
 {% if session['logged_in'] and session['admin']== 2 or session['admin']== 3%}
 
       <table border="1">
@@ -34,9 +60,10 @@ need to also make sure they cant access page by typing in route directly into br
                <td>{{row["b.bookName"]}}</td>
                <td>{{row["u.firstName"]}}</td>
                <td>{{row["u.lastName"]}}</td>
-               <td> {{row["lib.libraryName"]}}</td>
+               <td>{{row["lib.libraryName"]}}</td>
                <td>{{row["lo.checkedOut"]}}</td>
 			   <td>{{row["lo.returnBy"]}}</td>
+               <td><button class="btn-login" onclick="handleButtonClick('{{ row['b.bookName'] }}', '{{ row['b.bookID'] }}')">Check In</button></td>
             </tr>
       {% endfor %}
           </tbody>

@@ -54,4 +54,5 @@
 - Created style.css to be the center for the UI's theme customization. It is divided into sections and includes text styling, background styling, button styling, etc.
 - Borrowed a 'particles' java-script library created by Vincent Garreau a few years ago (https://github.com/VincentGarreau/particles.js); it will only be used for styling. It has been customized to fit with our project's color scheme (FSU colors).
 
-
+<h3>Update (November 12th):</h3>
+- Combined search.html and globalSearch.html into one page. Removed globalSearch.

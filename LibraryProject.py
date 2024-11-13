@@ -777,11 +777,7 @@ def search():
     if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login
         return render_template('login.html')
     else:
-        if session.get('admin') < 3:
-            return render_template('search.html', name=session['name'], UserLocalLibrary=session['UserLocalLibraryName'])
-        else:
-            return render_template('globalSearch.html', name=session['name'],
-                                   UserLocalLibrary=session['UserLocalLibraryName'])
+        return render_template('search.html', name=session['name'], UserLocalLibrary=session['UserLocalLibraryName'])
 
 # October 27th update - Shawnie Houston
 # Changed function name and route to some form of "search results" to better distinguish between results and result

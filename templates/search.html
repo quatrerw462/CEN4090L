@@ -18,6 +18,9 @@
             <option value="book">Book</option>
             <option value="author">Author</option>
             <option value="genre">Genre</option>
+            {% if session['admin'] == 3 %}
+                <option value="library">Library</option>
+            {% endif %}
         </select>
         <input type="submit" value="Search" class="btn-login">
     </form>

@@ -27,6 +27,17 @@ html, body {
     padding-bottom: 60px; /* Adjust this value to match or slightly exceed footer height */
 }
 
+/* Styling container to center the text in a page */
+.content-center {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
 /* Styling the <h2> links as buttons */
 h2 a {
     display: inline-block;
@@ -44,18 +55,25 @@ h2 a {
 h2 a:hover { background-color: #CEB888; }
 h2 a:active { background-color: #005c4d; }
 
-/* Styling the 'create account' link as button */
+/* Might have to change the name of this button styling*/
 .btn-create-account {
-    background-color: #782F40;
-    color: white;
-    padding: 10px 20px;
+    font-family: 'Fira Sans', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    background-color: #d3d3d3;
+    transition: background-color 0.4s ease;
+    color: black;
     border: none;
-    border-radius: 5px;
-    font-size: 1em;
+    padding: 12px 20px;
+    border-radius: 8px;
     cursor: pointer;
+    width: 300px;
+    margin-top: 10px;
 }
 
-.btn-create-account:hover { background-color: #5e1f2e; }
+.btn-create-account:hover {
+    background-color: #CEB888; /* FSU Gold on hover */
+}
 
 /* Container to center form elements */
 .login-container {
@@ -76,6 +94,19 @@ h2 a:active { background-color: #005c4d; }
     box-sizing: border-box;
 }
 
+/* Compact input field styling for forms */
+.input-field-compact {
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    min-width: 500px;
+    max-width: 1200px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
 /* Log in button style */
 .btn-login {
     font-family: 'Fira Sans', sans-serif;
@@ -87,7 +118,8 @@ h2 a:active { background-color: #005c4d; }
     padding: 12px 20px;
     border-radius: 8px;
     cursor: pointer;
-    width: 100%;
+    min-width: 300px;
+    max-width: 500px;
     margin-top: 20px;
 }
 
@@ -106,6 +138,81 @@ h2 a:active { background-color: #005c4d; }
     font-family: "Fira Sans", sans-serif;
     font-weight: 200;
     z-index: 2;
+}
+
+/* Styling for "choose an action "dropdown menu */
+.ActionChoiceDropdown {
+    width: 250px;
+    height: 35px;
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 16px;
+    padding: 5px;
+    margin-top: 10px;
+}
+
+/* Styling for dropdown menu, makes it more visible*/
+.libraryDropdown {
+    width: 250px;
+    height: 35px;
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 16px;
+    padding: 5px;
+    margin-top: 10px;
+}
+
+/* Submit Button (FSU GOLD)*/
+input[type="submit"] {
+    background-color: #CFC493; /* FSU gold */
+    color: black;
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    min-width: 200px;
+    max-width: 300px;
+    transition: background-color 0.5s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #B7A876; /* Slightly darker gold for hover */
+}
+
+/*
+TABLE STYLING
+Worked on by Isaias Quintero, 11/12/2024
+*/
+/* Add padding and spacing to table cells */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 10px; /* Adjust space between cells */
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #CEB888; /* Gold color for header */
+    color: black;
+    font-family: 'Fira Sans', sans-serif;
+    font-weight: 600;
+}
+
+td {
+    background-color: #f9f9f9; /* Light gray background for rows */
+    color: #333;
+    font-family: 'Fira Sans', sans-serif;
+}
+
+/* Hover effect for table rows */
+tr:hover {
+    background-color: #f1f1f1;
 }
 
 /*

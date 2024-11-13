@@ -53,6 +53,10 @@
 - Added graphical elements (LitManager logo as a vector for lossless scalability, books texture to be overlayed over the background)
 - Created style.css to be the center for the UI's theme customization. It is divided into sections and includes text styling, background styling, button styling, etc.
 - Borrowed a 'particles' java-script library created by Vincent Garreau a few years ago (https://github.com/VincentGarreau/particles.js); it will only be used for styling. It has been customized to fit with our project's color scheme (FSU colors).
+- Written by Isaias
 
 <h3>Update (November 12th):</h3>
-- Combined search.html and globalSearch.html into one page. Removed globalSearch.
+- Combined search.html and globalSearch.html into one page. Removed globalSearch. (Shawnie)
+- Updated the style.css to include more customization for the templates.
+- Updated 6 .html templates to match style of the scheme so far and to extend from base.html.
+- Written by Isaias

@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-</head>
-<body data-gr-c-s-loaded="true" style="margin: 0px;">
+{% extends "base.html" %}
+<!-- Updated by Isaias 11/12/2024 to follow home.html structure with particles and consistent logo -->
+
+{% block content %}
+<!-- Logo and Particle Background -->
+<div class="logo-container">
+    <img src="{{ url_for('static', filename='LitManagerLogo.svg') }}" alt="Logo">
+</div>
+<div id="particles-js"></div>
+
 <script>
     function handleButtonClick(bookName, bookID) {
-
         const userLogon = "{{ session['username'] }}"; 
 
         fetch('/checkOut', {
@@ -20,7 +23,7 @@
         .then(data => {
             if (data.success) {
                 alert(bookName + " checked out successfully!");
-                location.reload(); // Reload the page to update the button state
+                location.reload(); 
             } else {
                 alert("Error: " + data.message);
             }
@@ -31,39 +34,47 @@
         });
     }
 </script>
-    <table border="1">
+
+<div class="content-center">
+    <table>
         <thead>
-            <tr><td>Book</td>
-            <td>Author</td>
-            <td>Description</td>
-            <td>Genre</td>
-            <td>Library</td>
-            <td>Dewey Decimal</td></tr>
+            <tr>
+                <th>Book</th>
+                <th>Author</th>
+                <th>Description</th>
+                <th>Genre</th>
+                <th>Library</th>
+                <th>Dewey Decimal</th>
+                <th>Action</th>
+            </tr>
         </thead>
         <tbody>
-        {% for index, row in rows.iterrows() %}
-        <tr>
-            <td>{{row["b.bookName"]}}</td>
-            <td>{{row["b.author"]}}</td>
-            <td>{{row["b.description"]}}</td>
-            <td>{{row["b.genre"]}}</td>
-            <td>{{row["l.libraryName"]}}</td>
-            <td>{{row["b.dewey"]}}</td>
-			<td>                 
-			{% if row["available"] == 1 %}
-                    <button type="button" onclick="handleButtonClick('{{ row['b.bookName'] }}', '{{ row['b.bookID'] }}')">Check Out</button>
-                {% else %}
-                    <button type="button" disabled style="color: gray; cursor: not-allowed;">Unavailable</button>
-            {% endif %}
-			</td>
-        </tr>
-        {% endfor %}
+            {% for index, row in rows.iterrows() %}
+            <tr>
+                <td>{{ row["b.bookName"] }}</td>
+                <td>{{ row["b.author"] }}</td>
+                <td>{{ row["b.description"] }}</td>
+                <td>{{ row["b.genre"] }}</td>
+                <td>{{ row["l.libraryName"] }}</td>
+                <td>{{ row["b.dewey"] }}</td>
+                <td>
+                    {% if row["available"] == 1 %}
+                        <button class="btn-login" onclick="handleButtonClick('{{ row['b.bookName'] }}', '{{ row['b.bookID'] }}')">Check Out</button>
+                    {% else %}
+                        <button class="unavailable-btn" disabled>Unavailable</button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
+
+    <!-- Buttons with spacing -->
     {% if session['admin'] == 1 or session['admin'] == 2 %}
-        <a href="{{ url_for('search_all') }}">Search all libraries</a><br>
+        <a href="{{ url_for('search_all') }}" class="btn-create-account" style="margin-bottom: 10px;">Search all libraries</a><br>
     {% endif %}
-    <a href="/search">Back to search</a><br>
-    <a href="/">Back to home</a>
-</body>
-</html>
+    <a href="/search" class="btn-create-account" style="margin-bottom: 10px;">Back to search</a><br>
+    <a href="/" class="btn-create-account">Back to home</a>
+</div>
+
+{% endblock %}

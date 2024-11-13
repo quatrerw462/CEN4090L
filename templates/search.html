@@ -1,18 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-</head>
-<body data-gr-c-s-loaded="true" style="margin: 0px;">
-    <form action="{{ url_for('search_results') }}" method="post">
-        <input type="search" id="libsearch" name="libsearch" placeholder="Search libraries">
-        <select name="category" id="category">
+{% extends "base.html" %}
+<!-- Updated by Isaias 11/12/2024 to follow home.html structure with particles and consistent logo -->
+
+{% block content %}
+    <!-- Logo container for consistent branding -->
+    <div class="logo-container">
+        <img src="/static/LitManagerLogo.svg" alt="LitManager Logo">
+    </div>
+
+    <!-- Particles background effect -->
+    <div id="particles-js"></div>
+
+    <h1>Search Libraries</h1>
+
+    <form action="{{ url_for('search_results') }}" method="post" class="content-center">
+        <input type="search" id="libsearch" name="libsearch" placeholder="Search libraries" class="input-field">
+        <select name="category" id="category" class="input-field">
             <option value="book">Book</option>
             <option value="author">Author</option>
             <option value="genre">Genre</option>
-            <!--<option value="library">Library</option>-->
         </select>
+        <input type="submit" value="Search" class="btn-login">
     </form>
-    <a href="/">Back to home</a>
-</body>
-</html>
+
+    <!-- Styled link for returning to the homepage -->
+    <h2><a href="/" class="styled-link">Back to home</a></h2>
+{% endblock %}

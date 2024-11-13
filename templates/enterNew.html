@@ -1,9 +1,16 @@
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-</head>
-<body data-gr-c-s-loaded="true" style="margin: 0px;">
-  {% with messages = get_flashed_messages() %}
+{% extends "base.html" %}
+<!-- based off of home.html document provided by dr works
+     Update by Isaias on 11/12/2024 -->
+{% block content %}
+<div class="logo-container">
+    <img src="{{ url_for('static', filename='LitManagerLogo.svg') }}" alt="Logo">
+</div>
+<!-- adding logo to home -->
+
+<div id="particles-js"></div>
+<!-- references the particles -->
+
+{% with messages = get_flashed_messages() %}
          {% if messages %}
             <ul>
                {% for message in messages %}
@@ -66,7 +73,8 @@
 		</h1>
 
 		<label for="action">Choose an action:</label>
-		<select id="action" onchange="changeDisplay()">
+		<select id="action" onchange="changeDisplay()" class="ActionChoiceDropdown">
+
 			<option value="">Select...</option>
 			<option value="add">Add book to inventory</option>
 			<option value="remove">Remove book from inventory</option>
@@ -82,33 +90,35 @@
 		    
 			Select Library to update inventory:
 			<label for="libraryDropdown"></label>
-			<select class="libraryDropdown"name = "selectedLibrary">
+			<select class="libraryDropdown" name = "selectedLibrary">
 				<option value="">Select...</option>
 			</select>
-
+<!-- Update by Isaias (11/12/2024): There may be an issue here, since "libraryDropdown" is being used to actually 'drop'
+ a menu to be used with the library options, but it's also used as a dropdown style. I renamed
+ the dropdown one libraryDropdownStyle to differentiate, but more tweaking may be needed. -->
 			<br><br>
 			{% endif %}
-
+<!-- Update by Isaias (11/12/2024): So I updated the below 'options' to include placeholders and styling referenced from style.css -->
 			 Book Title<br>
-			 <input type="text" name="AddBookTitle" ><br><br>
+			 <input type="text" name="AddBookTitle" placeholder="Title..." class="input-field-compact"><br><br>
 
 			 Book Author<br>
-			 <input type="text" name="AddBookAuthor" ><br><br>
+			 <input type="text" name="AddBookAuthor" placeholder="Author..." class="input-field-compact"><br><br>
 
 			 Book Publisher<br>
-			 <input type="text" name="AddBookPublisher" ><br><br>
+			 <input type="text" name="AddBookPublisher" placeholder="Publisher..." class="input-field-compact"><br><br>
 			 
 			 ISBN13<br>
-			 <input type="text" name="AddBookISBN"><br><br>
+			 <input type="text" name="AddBookISBN" placeholder="ISBN..." class="input-field-compact"><br><br>
 			 
 			 Description<br>
-			 <input type ="text" name="AddBookDescription"><br><br>
+			 <input type ="text" name="AddBookDescription" placeholder="Description..." class="input-field-compact"><br><br>
 
 			 Genre<br>
-			 <input type ="text" name="AddBookGenre"><br><br>
+			 <input type ="text" name="AddBookGenre" placeholder="Genre..." class="input-field-compact"><br><br>
 
 			 Dewey Decimal<br>
-			 <input type ="text" name="AddBookDeweyDecimal"><br><br>
+			 <input type ="text" name="AddBookDeweyDecimal" placeholder="Dewey Decimal..." class="input-field-compact"><br><br>
 			 <input type="submit" value="Submit">
 			 </form>
 		</div>
@@ -131,16 +141,16 @@
 			{% endif %}
 			
 			 Book Title<br>
-			 <input type="text" name="RemoveBookTitle" ><br><br>
+			 <input type="text" name="RemoveBookTitle" placeholder="Title..." class="input-field-compact"><br><br>
 
 			 Book Author<br>
-			 <input type="text" name="RemoveBookAuthor" ><br><br>
+			 <input type="text" name="RemoveBookAuthor" placeholder="Author..." class="input-field-compact"><br><br>
 
 			 Book Publisher<br>
-			 <input type="text" name="RemoveBookPublisher" ><br><br>
+			 <input type="text" name="RemoveBookPublisher" placeholder="Publisher..." class="input-field-compact"><br><br>
 			 
 			 ISBN13<br>
-			 <input type="text" name="RemoveBookISBN"><br><br>
+			 <input type="text" name="RemoveBookISBN" placeholder="ISBN..." class="input-field-compact"><br><br>
 			 <input type="submit" value="Submit">
 			 </form>
 		</div>
@@ -163,12 +173,9 @@
 		</script>-->
 	
 	{% endif %}
-	<a href="/"><h3>Go back to home page</h3></a>
+<h2><a href="/">Go back to home page</a></h2>
+
 
 {% endif %}
 
-
-      
-   
-
-</body></html>
+{% endblock %}

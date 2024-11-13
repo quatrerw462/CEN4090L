@@ -1,92 +1,73 @@
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-</head>
-<body data-gr-c-s-loaded="true" style="margin: 0px;">
-  {% with messages = get_flashed_messages() %}
-         {% if messages %}
+{% extends "base.html" %}
+<!-- Updated by Isaias 11/8/2024 to follow home.html structure with particles and consistent logo -->
+
+{% block content %}
+<div class="logo-container">
+    <img src="{{ url_for('static', filename='LitManagerLogo.svg') }}" alt="Logo">
+</div>
+
+<div id="particles-js"></div>
+
+<!-- Center-align the main content -->
+<div class="content-center">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
             <ul>
                {% for message in messages %}
                <li>{{ message }}</li>
                {% endfor %}
             </ul>
-         {% endif %}
+        {% endif %}
     {% endwith %}
 
-{% if session['logged_in'] %}
-	  <script>
-		// Function to fetch the unique library names and populate the dropdown
-		async function loadLibraryDropdown() {
-			try {
-				const response = await fetch('/libraryList');
-				const libraries = await response.json();
-				const dropdowns = document.querySelectorAll('.libraryDropdown');
+    {% if session['logged_in'] %}
+        <script>
+            // Function to fetch the unique library names and populate the dropdown
+            async function loadLibraryDropdown() {
+                try {
+                    const response = await fetch('/libraryList');
+                    const libraries = await response.json();
+                    const dropdowns = document.querySelectorAll('.libraryDropdown');
 
-				dropdowns.forEach(dropdown => {
-					dropdown.innerHTML = '<option value="">Select...</option>'; // Reset options
-					libraries.forEach(library => {
-						const option = document.createElement('option');
-						option.value = library;
-						option.textContent = library;
-						dropdown.appendChild(option);
-			});
-		});
-			} catch (error) {
-				console.error("Error fetching libraries:", error);
-			}
-		}
-		window.onload = loadLibraryDropdown;
-	</script>
+                    dropdowns.forEach(dropdown => {
+                        dropdown.innerHTML = '<option value="">Select...</option>'; // Reset options
+                        libraries.forEach(library => {
+                            const option = document.createElement('option');
+                            option.value = library;
+                            option.textContent = library;
+                            dropdown.appendChild(option);
+                        });
+                    });
+                } catch (error) {
+                    console.error("Error fetching libraries:", error);
+                }
+            }
+            window.onload = loadLibraryDropdown;
+        </script>
 
-	<h1> Select new Library </h1>
-	
-	{% if session['UserLocalLibraryName'] == -1 %}
-	<br><h2>Your Local Library has been removed from the network, please select a new Local Library</h2>
-	{% endif %}
-	
+        <h1 class="fira-sans-thin">Select New Library</h1>
 
-	<script>loadLibraryDropdown();</script>
-	<div class="content">
-		<form action="{{ url_for('changeLibrary') }}"  method="POST">
-	
-		
-		Select New Local Library:
-		<label for="libraryDropdown"></label>
-		<select class="libraryDropdown"name = "selectedLibrary">
-			<option value="">Select...</option>
-		</select>
+        {% if session['UserLocalLibraryName'] == -1 %}
+        <br><h2>Your Local Library has been removed from the network, please select a new Local Library</h2>
+        {% endif %}
 
-		 <input type="submit" value="Submit">
-		 </form>
-	</div>
+        <script>loadLibraryDropdown();</script>
+        <div class="content">
+            <form action="{{ url_for('changeLibrary') }}" method="POST">
+                Select New Local Library:
+                <label for="libraryDropdown"></label>
+                <select class="libraryDropdown" name="selectedLibrary">
+                    <option value="">Select...</option>
+                </select>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
 
-	
+        <!-- a href = anchor, creates link to route in quotes. both /enternew and /list
+             have routes defined in newHospitalUsers program, which route to corresponding htmls -->
+<h2><a href="/">Go back to home page</a></h2>
+<h2><a href="/logout">Log out</a></h2>
 
-	<!--<script>
-		
-
-		// this is no longer needed once change display was called onload
-		// Ensure the content sections are hidden on page load and load the dropdown
-		//document.addEventListener("DOMContentLoaded", function () {
-		// Hide both content sections on page load
-		//document.getElementById("addContent").style.display = "none";
-		//document.getElementById("removeContent").style.display = "none";
-	
-
-
-		// Ensure the content remains hidden on page load
-		//changeDisplay();
-);
-	</script>-->
-
-
-<a href="/"><h3>Go back to home page</h3></a>
-<a href="/logout"><h3>Log out<h3></a>
-
-{% endif %}
-
-
-      
-   
-
-</body></html>
+    {% endif %}
+</div>
+{% endblock %}

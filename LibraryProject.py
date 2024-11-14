@@ -282,7 +282,7 @@ def list():
                 JOIN Books b ON b.bookID = lo.bookID
                 JOIN Libraries lib ON lib.libraryID = b.libraryID
                 WHERE b.libraryID = ?;'''
-
+        cur.fetchall()
         cur.execute(sql_query, (ul,))
 
         df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'u.firstName', 'u.lastName', 'lib.libraryName', 'lo.checkedOut', 'lo.returnBy', 'b.bookID'])
@@ -304,15 +304,15 @@ def list():
         #
         # October 27th - Shawnie Houston
         # Updated SQL query so the FROM is for loans and it's searching based on Books' libraryID
-        sql_query = '''SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy \
+        sql_query = '''SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy,'b.bookID' \
                 FROM Loans lo
                 JOIN LibUsers u ON u.userLogon = lo.userLogon
                 JOIN Books b ON b.bookID = lo.bookID
                 JOIN Libraries lib ON lib.libraryID = b.libraryID;'''
-
+        cur.fetchall()
         cur.execute(sql_query)
 
-        df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'u.firstName', 'u.lastName', 'lib.libraryName', 'lo.checkedOut', 'lo.returnBy'])
+        df = pd.DataFrame(cur.fetchall(), columns=['b.bookName', 'u.firstName', 'u.lastName', 'lib.libraryName', 'lo.checkedOut', 'lo.returnBy','b.bookID'])
         df['u.firstName'] = df['u.firstName'].apply(lambda x: cipher.decrypt(x)) # Decrypts user's first name
         df['u.lastName'] = df['u.lastName'].apply(lambda x: cipher.decrypt(x)) # Decrypts user's last name
         return render_template("list.html", rows = df)
@@ -1151,17 +1151,23 @@ def check_in():
         return render_template('login.html')
     else:
         book_id = request.json.get('bookID')
+        user_logon = request.json.get('userLogon')  # Assuming you have a way to get the user's logon
 
-        if not book_id:
-            return jsonify({'error': 'Missing bookID'}), 400
+        if not book_id or not user_logon:
+            return jsonify({'error': 'Missing bookID or userLogon'}), 400
 
         try:
             con = sql.connect("Library.db")
+            print("1")
             con.row_factory = sql.Row
+            print("2")
             cur = con.cursor()
+            print("3")
             cur.execute("DELETE FROM Loans WHERE bookID = ?",(book_id,))
+            print("4")
             con.commit()
-            return jsonify({'success': True, 'message': 'Book checked in successfully'}), 200
+            print("5")
+            return jsonify({'success': True, 'message': 'Book checked in successfully1'}), 200
 
         except Exception as e:
             print(e)

@@ -257,6 +257,9 @@ def addrec():
 # if view list link clicked from home page, executes below function
 # Update: The "User who checked out the book" column in the displayed table no longer displays encrypted values
 # Updated by Pablo
+
+# November 15th, 2024 - Shawnie
+# Removed single quotes around b.bookID in SELECT query for level 3 user
 @app.route('/list')
 def list():
     if not session.get('logged_in'):   # if user not logged in and tries to access this page, redirect to login

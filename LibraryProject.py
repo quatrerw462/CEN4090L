@@ -303,8 +303,8 @@ def list():
         # Changed by Pablo.
         #
         # October 27th - Shawnie Houston
-        # Updated SQL query so the FROM is for loans and it's searching based on Books' libraryID
-        sql_query = '''SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy,'b.bookID' \
+        # Updated SQL query so the FROM is for loans, and it's searching based on Books' libraryID
+        sql_query = '''SELECT b.bookName, u.firstName, u.lastName, lib.libraryName, lo.checkedOut, lo.returnBy,b.bookID \
                 FROM Loans lo
                 JOIN LibUsers u ON u.userLogon = lo.userLogon
                 JOIN Books b ON b.bookID = lo.bookID
@@ -1151,10 +1151,10 @@ def check_in():
         return render_template('login.html')
     else:
         book_id = request.json.get('bookID')
-        user_logon = request.json.get('userLogon')  # Assuming you have a way to get the user's logon
+        print(book_id)
 
-        if not book_id or not user_logon:
-            return jsonify({'error': 'Missing bookID or userLogon'}), 400
+        if not book_id:
+            return jsonify({'error': 'Missing bookID'}), 400
 
         try:
             con = sql.connect("Library.db")
@@ -1167,7 +1167,7 @@ def check_in():
             print("4")
             con.commit()
             print("5")
-            return jsonify({'success': True, 'message': 'Book checked in successfully1'}), 200
+            return jsonify({'success': True, 'message': 'Book checked in successfully'}), 200
 
         except Exception as e:
             print(e)

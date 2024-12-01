@@ -19,7 +19,8 @@ need to also make sure they cant access page by typing in route directly into br
 
 <script>
     function handleButtonClick(bookName, bookID) {
-
+		const userLogon = "{{ session['username'] }}";
+		
         fetch('/checkIn', {
             method: 'POST',
             headers: {
@@ -43,7 +44,8 @@ need to also make sure they cant access page by typing in route directly into br
     }
 </script>
 
-{% if session['logged_in'] and session['admin']== 2 or session['admin']== 3%}
+{% if session['logged_in']%}
+	{% if session['admin']== 2 or session['admin']== 3%}
 
       <table border="1">
          <thead>
@@ -73,6 +75,6 @@ need to also make sure they cant access page by typing in route directly into br
       <a href="/">Go back to home page</a>
 	  <!--this works because a route '/' was defined in program which
 	  routes to home.html-->
+	{% endif %}
 {% endif %}
-
 </body></html>

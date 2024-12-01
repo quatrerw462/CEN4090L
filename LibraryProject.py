@@ -98,8 +98,9 @@ def show_user():
                           columns=['firstName', 'lastName', 'phoneNum', 'userAddress', 'Libraries.libraryName', 'securityLevel',
                                    'password']);
 
-        # UserName
+        # first name
         df.iat[0, 0] = cipher.decrypt(df.iat[0, 0])
+        # last name
         df.iat[0, 1] = cipher.decrypt(df.iat[0, 1])
         # UserPhNum
         df.iat[0, 2] = cipher.decrypt(df.iat[0, 2])
@@ -270,6 +271,7 @@ def list():
         cur = con.cursor()
         ul = session['UserLocalLibrary']
 
+
         # October 16th merge update:
         # Updated select queries to account for changes in table schemas.
         # Aimed to make the result as close as possible to Joshua's initial code results, but I may have gotten it wrong.
@@ -298,6 +300,7 @@ def list():
         con.row_factory = sql.Row
         cur = con.cursor()
         ul = session['UserLocalLibrary']
+
 
         # October 16th merge update:
         # Updated select queries to account for changes in table schemas.
@@ -383,86 +386,6 @@ def do_admin_login():
    finally:
       con.close()
    return home()
-
-
-
-
-
-
-"""
-# Holdover code from old assignment
-#code to enter new test results - validates input and encrypts
-@app.route('/addTestResults', methods=['POST', 'GET'])
-def addTestResult():
-   if not session.get('logged_in'):
-      return render_template('login.html')
-   elif session.get('admin') == 2 or session.get('admin') == 3:
-      if request.method == 'POST':
-         try:
-            error = False
-            testNm = request.form['TestName']
-            testResult = request.form['TestResult']
-            UserId = request.form['UserId']
-            testNm = str(testNm).lstrip()
-            testResult = str(testResult).lstrip()
-
-            msg = "\n"
-            if (len(testNm) == 0):
-               error = True
-               msg += "You can not enter in an empty test name \n"
-
-            if (len(testResult) == 0):
-               error = True
-               msg += "You can not enter in an empty test Result \n"
-
-            try:
-               if (int(UserId) <= 0):
-                  error = True
-                  msg += "The User Id must be a whole number greater than 0. \n"
-            except ValueError:
-               error = True
-               msg += "The User Id must be a whole number greater than 0. \n"
-            # below code executes if all input valid
-            if (not (error)):
-               sep = "^%$"  # separator
-               msg = UserId+sep+testNm+sep+testResult  #concatenates inputted fields with separator to send to server
-               msg = cipher.encrypt(msg)
-            # code to access server
-               HOST, PORT = "localhost", 9999
-               sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-               # Connect to server and send data
-               sock.connect((HOST, PORT))
-
-               sock.sendall(msg)
-               sock.close()
-
-               msg = "Help message sent!"
-
-
-         finally:
-            msg = msg.split('\n')
-            return render_template("result.html", msg=msg)
-   else:
-       abort(404)
-
-# displays test results - accesses test results table and decrpyts
-@app.route('/testResults')
-def testResults():
-   if not session.get('logged_in'):
-      return render_template('login.html')
-   else:
-      con = sql.connect("HospitalUser.db")
-      con.row_factory = sql.Row
-
-      cur = con.cursor()
-      cur.execute("select TestName, TestResult from UserTestResults where UserId = ?",[session['UserId']])
-      df = pd.DataFrame(cur.fetchall(),
-                        columns=['TestName', 'TestResult']);
-      df['TestName'] = df['TestName'].apply(lambda x: cipher.decrypt(x))
-      df['TestResult'] = df['TestResult'].apply(lambda x: cipher.decrypt(x))
-      print(df)
-      return render_template("TestResults.html", rows=df)
-"""
 
 
 
@@ -1099,12 +1022,13 @@ def changeLibrary():
                     cur.execute("Select libraryID from Libraries where libraryName = ?", (selected_library,))
                     # cur.fetchone returns a tuple. only want to access 1st element
                     result = cur.fetchone()
-                    print(result)
                     libID = result[0]
                     cur.execute("UPDATE LibUsers SET libraryID = ? WHERE userLogon = ? "
                                 , (libID, session.get('username')))
                     con.commit()
+
                     message = message + "Library successfully updated.\n"
+
 
             except Exception as e:
                 con.rollback()
@@ -1113,6 +1037,10 @@ def changeLibrary():
 
             finally:
                 message = message.split('\n')
+                #need to set both integer user local library and string user local library name
+                #or else issues with displaying correct books for level 2 users when showing
+                #books checked out by user's local library
+                session['UserLocalLibrary'] = libID
                 session['UserLocalLibraryName'] = selected_library
                 return render_template("result.html", msg=message)
                 con.close()

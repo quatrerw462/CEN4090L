@@ -19,7 +19,7 @@ need to also make sure they cant access page by typing in route directly into br
 
 <script>
     function handleButtonClick(bookName, bookID) {
-		const userLogon = "{{ session['username'] }}"; 
+		const userLogon = "{{ session['username'] }}";
 		
         fetch('/checkIn', {
             method: 'POST',

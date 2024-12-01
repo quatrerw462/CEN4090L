@@ -56,17 +56,20 @@
 - Written by Isaias
 
 <h3>Update (November 12th):</h3>
+
 - Combined search.html and globalSearch.html into one page. Removed globalSearch. (Shawnie)
 - Updated the style.css to include more customization for the templates.
 - Updated 6 .html templates to match style of the scheme so far and to extend from base.html.
 - Written by Isaias
 
 <h3>Update (November 12th pt2):</h3>
+
 - Added functionality to LibraryProject.py and createAccount.html to add drop down choices for local library for account creation
 - Recycled code for library drop down from enterNew.html
 - Written by Josh
 
 <h3>Update (November 30th):</h3>
+
 - Fixed bug causing /list to display checked out books from previous local library after a library change for level 2 users
 - Written by Josh
 

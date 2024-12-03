@@ -77,10 +77,12 @@ h2 a:active { background-color: #005c4d; }
 
 /* Container to center form elements */
 .login-container {
-    max-width: 400px;
-    margin: 0 auto;
+    max-width: 1000px; /* Ensure container width is appropriate */
+    margin: 0 auto; /* Center the container horizontally */
     padding: 20px;
+    text-align: center; /* Aligns form elements within the container */
 }
+
 
 /* Input field styling */
 .input-field {
@@ -88,11 +90,13 @@ h2 a:active { background-color: #005c4d; }
     font-size: 16px;
     padding: 12px;
     border-radius: 8px;
-    width: 100%;
-    margin-bottom: 20px;
+    width: 100%; /* Fills the container width */
+    max-width: 400px; /* Matches the container's width */
+    margin: 0 auto 20px; /* Centers and adds spacing between fields */
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
+
 
 /* Compact input field styling for forms */
 .input-field-compact {
@@ -106,6 +110,20 @@ h2 a:active { background-color: #005c4d; }
     border: 1px solid #ccc;
     box-sizing: border-box;
 }
+
+/* Wider input field styling for forms like addLibrary.html */
+.input-field-wide {
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    min-width: 600px; /* Wider but not touching the edges */
+    max-width: 1000px; /* Limit maximum width */
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
 
 /* Log in button style */
 .btn-login {
@@ -177,6 +195,18 @@ input[type="submit"] {
 
 input[type="submit"]:hover {
     background-color: #B7A876; /* Slightly darker gold for hover */
+}
+
+/* STYLING FOR GOLD LINK */
+.fsu-gold-link {
+    color: #CFC493; /* Replace with the exact FSU gold hex code if different */
+    text-decoration: none; /* Optional: removes underline */
+    font-weight: bold; /* Optional: adds emphasis */
+}
+
+.fsu-gold-link:hover {
+    color: #A38430; /* Optional: darker shade of gold for hover effect */
+    text-decoration: underline; /* Optional: underline on hover */
 }
 
 /*

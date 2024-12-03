@@ -73,3 +73,9 @@
 - Fixed bug causing /list to display checked out books from previous local library after a library change for level 2 users
 - Written by Josh
 
+<h3>Update (December 2nd):</h3>
+
+- Updated style.css to include gold hyperlink as well as wide input-field styling
+- Updated 3 templates (list, addLibrary & listLibraries) to extend from base.html as well as follow the current UI
+- Written by Isaias
+

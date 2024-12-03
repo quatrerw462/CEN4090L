@@ -1,26 +1,69 @@
-<!DOCTYPE html>
-<!-- based off of list.html document provided by dr works -->
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-</head>
-<body data-gr-c-s-loaded="true" style="margin: 0px;">
+{% extends "base.html" %}
+<!-- Updated by Isaias to use base.html structure and styling -->
+
+{% block content %}
+<div class="logo-container">
+    <img src="{{ url_for('static', filename='LitManagerLogo.svg') }}" alt="Logo">
+</div>
+
+<div id="particles-js"></div>
+
+<!-- Content Section -->
+<div class="content-center">
     {% with messages = get_flashed_messages() %}
-         {% if messages %}
+        {% if messages %}
             <ul>
-               {% for message in messages %}
-               <li>{{ message }}</li>
-               {% endfor %}
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
             </ul>
-         {% endif %}
+        {% endif %}
     {% endwith %}
-<!--need to add validation below to ensure users are both logged in and admins
-need to also make sure they cant access page by typing in route directly into browser-->
+
+    {% if session['logged_in'] %}
+        {% if session['admin'] == 2 or session['admin'] == 3 %}
+        <h1 class="fira-sans-thin">Checked Out Books</h1>
+        <table class="fira-sans-regular" border="1">
+            <thead>
+                <tr>
+                    <td>Book</td>
+                    <td>First Name</td>
+                    <td>Last Name</td>
+                    <td>Library</td>
+                    <td>Date Checked Out</td>
+                    <td>Date Due Back</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for index, row in rows.iterrows() %}
+                <tr>
+                    <td>{{ row["b.bookName"] }}</td>
+                    <td>{{ row["u.firstName"] }}</td>
+                    <td>{{ row["u.lastName"] }}</td>
+                    <td>{{ row["lib.libraryName"] }}</td>
+                    <td>{{ row["lo.checkedOut"] }}</td>
+                    <td>{{ row["lo.returnBy"] }}</td>
+                    <td>
+                        <button class="btn-login" onclick="handleButtonClick('{{ row['b.bookName'] }}', '{{ row['b.bookID'] }}')">
+                            Check In
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2><a href="/">Go back to home page</a></h2>
+    	  <!--this works because a route '/' was defined in program which
+	  routes to home.html-->
+        {% endif %}
+    {% endif %}
+</div>
 
 <script>
     function handleButtonClick(bookName, bookID) {
-		const userLogon = "{{ session['username'] }}";
-		
+        const userLogon = "{{ session['username'] }}";
+
         fetch('/checkIn', {
             method: 'POST',
             headers: {
@@ -43,38 +86,4 @@ need to also make sure they cant access page by typing in route directly into br
         });
     }
 </script>
-
-{% if session['logged_in']%}
-	{% if session['admin']== 2 or session['admin']== 3%}
-
-      <table border="1">
-         <thead>
-            <tr><td>Book</td>
-            <td>First name of user who checked out book</td>
-            <td>Last name of user who checked out book</td>
-            <td>Library where book was checked out from</td>
-			<td>Date checked out</td>
-			<td>Date Due Back</td>
-			<td>Action</td>
-         </tr></thead>
-          <tbody>
-          {% for index, row in rows.iterrows() %} <!-- loop through table and print info in various rows-->
-          <tr>
-               <td>{{row["b.bookName"]}}</td>
-               <td>{{row["u.firstName"]}}</td>
-               <td>{{row["u.lastName"]}}</td>
-               <td>{{row["lib.libraryName"]}}</td>
-               <td>{{row["lo.checkedOut"]}}</td>
-			   <td>{{row["lo.returnBy"]}}</td>
-               <td><button class="btn-login" onclick="handleButtonClick('{{ row['b.bookName'] }}', '{{ row['b.bookID'] }}')">Check In</button></td>
-            </tr>
-      {% endfor %}
-          </tbody>
-      </table>
-      
-      <a href="/">Go back to home page</a>
-	  <!--this works because a route '/' was defined in program which
-	  routes to home.html-->
-	{% endif %}
-{% endif %}
-</body></html>
+{% endblock %}

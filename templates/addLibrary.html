@@ -1,11 +1,14 @@
-<html>
+{% extends "base.html" %}
+<!-- Updated by Isaias to use base.html structure and styling -->
 
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-    <title>Add a Library</title>
-</head>
+{% block content %}
+<div class="logo-container">
+    <img src="{{ url_for('static', filename='LitManagerLogo.svg') }}" alt="Logo">
+</div>
 
-<body data-gr-c-s-loaded="true" style="margin: 0px;">
+<div id="particles-js"></div>
+
+<div class="content-center">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>
@@ -16,28 +19,28 @@
         {% endif %}
     {% endwith %}
 
-    <h1>Add a library to the network</h1>
+    <h1 class="fira-sans-thin">Add a Library to the Network</h1>
 
-    <form action="{{ url_for('addLib') }}" method="POST">
-        Library Name<br>
-        <input type="text" name="libName" required><br><br>
+<form action="{{ url_for('addLib') }}" method="POST" class="form-container">
+    <label for="libName" class="fira-sans-regular">Library Name</label><br>
+    <input type="text" name="libName" id="libName" class="input-field-wide" required><br><br>
 
-        Library Address<br>
-        <input type="text" name="libAddress" required><br><br>
+    <label for="libAddress" class="fira-sans-regular">Library Address</label><br>
+    <input type="text" name="libAddress" id="libAddress" class="input-field-wide" required><br><br>
 
-        Library City<br>
-        <input type="text" name="libCity" required><br><br>
+    <label for="libCity" class="fira-sans-regular">Library City</label><br>
+    <input type="text" name="libCity" id="libCity" class="input-field-wide" required><br><br>
 
-        Library State<br>
-        <input type="text" name="libState" required><br><br>
+    <label for="libState" class="fira-sans-regular">Library State</label><br>
+    <input type="text" name="libState" id="libState" class="input-field-wide" required><br><br>
 
-        Library Zip Code<br>
-        <input type="text" name="libZip" required><br><br>
+    <label for="libZip" class="fira-sans-regular">Library Zip Code</label><br>
+    <input type="text" name="libZip" id="libZip" class="input-field-wide" required><br><br>
 
-        <input type="submit" value="submit"><br>
-    </form>
+    <input type="submit" value="Submit" class="btn-primary"><br>
+</form>
 
-    <a href="/showLibs"><h3>Go back to library list</h3></a>
-</body>
 
-</html>
+    <h2><a href="/showLibs" class="fira-sans-regular">Go back to library list</a></h2>
+</div>
+{% endblock %}

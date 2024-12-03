@@ -1,46 +1,57 @@
-<html>
+{% extends "base.html" %}
+<!-- Updated by Isaias 12/3/2024 to follow base.html structure with particles and consistent logo -->
 
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
-    <title>Security Upgrade Requests</title>
-</head>
+{% block title %}Security Upgrade Requests{% endblock %}
 
-<body data-gr-c-s-loaded="true" style="margin: 0px;">
+{% block content %}
+<div class="logo-container">
+    <img src="{{ url_for('static', filename='LitManagerLogo.svg') }}" alt="Logo">
+</div>
+
+<div id="particles-js"></div>
+
+<div class="content-center">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>
                 {% for message in messages %}
-                <li>{{ message }}</li>
+                <li class="alert-message">{{ message }}</li>
                 {% endfor %}
             </ul>
         {% endif %}
     {% endwith %}
 
-    <!--Displays every user's request as expanding lists-->
     {% if session['logged_in'] and session['admin'] >= 3 %}
-        <h1>Security Level Upgrade Requests</h1>
-        {% for index, row in rows.iterrows() %}
-            <details>
-                <summary>{{row["UserName"]}} (ID: {{row["UserLogon"]}})</summary>
-                <ul>
-                    <li>Request ID: {{row["RequestId"]}}</li>
-                    <li>Current Security Level: {{row["CurrentLevel"]}}</li>
-                    <li>Desired Security Level: {{row["DesiredLevel"]}}</li>
-                    <li>Date of Request: {{row["DateOfRequest"]}}</li>
-                    <li>Reason for Upgrade: {{row["Reason"]}}</li>
-                    <li>Experience managing inventories: {{row["InvExperience"]}}</li>
-                    <li>Experience managing library networks: {{row["NetExperience"]}}</li>
-                    <li>Tasks user will handle: {{row["Tasks"]}}</li>
-                    <li>
-                        <a href="/upgrade?id={{row['UserLogon']}}&level={{row['DesiredLevel']}}&reqID={{row['RequestId']}}&accept=True">Accept</a>
-                        <a href="/upgrade?id={{row['UserLogon']}}&level={{row['DesiredLevel']}}&reqID={{row['RequestId']}}&accept=False">Reject</a>
-                    </li>
-                </ul>
-            </details>
-        {% endfor %}
-
-        <a href="/"><h3>Go back to home page</h3></a>
+        <h1 class="fira-sans-regular">Security Level Upgrade Requests</h1>
+        <div class="requests-container">
+            {% for index, row in rows.iterrows() %}
+                <details class="request-details">
+                    <summary>{{ row["UserName"] }} (ID: {{ row["UserLogon"] }})</summary>
+                    <ul class="details-list" style="text-align: left;">
+                        <li><b>Request ID:</b> {{ row["RequestId"] }}</li>
+                        <li><b>Current Security Level:</b> {{ row["CurrentLevel"] }}</li>
+                        <li><b>Desired Security Level:</b> {{ row["DesiredLevel"] }}</li>
+                        <li><b>Date of Request:</b> {{ row["DateOfRequest"] }}</li>
+                        <li><b>Reason for Upgrade:</b> {{ row["Reason"] }}</li>
+                        <li><b>Inventory Management Experience:</b> {{ row["InvExperience"] }}</li>
+                        <li><b>Library Network Experience:</b> {{ row["NetExperience"] }}</li>
+                        <li><b>Proposed Tasks:</b> {{ row["Tasks"] }}</li>
+                        <li>
+                            <a class="fsu-gold-link" href="/upgrade?id={{ row['UserLogon'] }}&level={{ row['DesiredLevel'] }}&reqID={{ row['RequestId'] }}&accept=True">Accept</a>
+                            <a class="fsu-gold-link" href="/upgrade?id={{ row['UserLogon'] }}&level={{ row['DesiredLevel'] }}&reqID={{ row['RequestId'] }}&accept=False">Reject</a>
+                        </li>
+                    </ul>
+                </details>
+            {% endfor %}
+        </div>
+        <h2><a href="{{ url_for('home') }}" class="btn-create-account">Go back to home page</a></h2>
+    {% else %}
+        <p class="alert-message">You do not have the required permissions to view this page.</p>
     {% endif %}
-</body>
+</div>
 
-</html>
+<script src="{{ url_for('static', filename='particles.js') }}"></script>
+<script>
+    particlesJS.load('particles-js', "{{ url_for('static', filename='particles.json') }}");
+</script>
+{% endblock %}

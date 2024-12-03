@@ -124,6 +124,20 @@ h2 a:active { background-color: #005c4d; }
     box-sizing: border-box;
 }
 
+/* Adjusting textareas for wider inputs */
+.textarea-wide {
+    width: 90%;
+    max-width: 800px;
+    height: 120px;
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 16px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
 
 /* Log in button style */
 .btn-login {

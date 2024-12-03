@@ -78,4 +78,10 @@
 - Updated style.css to include gold hyperlink as well as wide input-field styling
 - Updated 3 templates (list, addLibrary & listLibraries) to extend from base.html as well as follow the current UI
 - Written by Isaias
+- 
+<h3>Update (December 3rd):</h3>
+
+- Updated style.css to include large text area
+- Updated remaining templates (to date) to extend from base.html as well as follow the current UI
+- Written by Isaias
 

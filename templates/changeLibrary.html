@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-<!-- Updated by Isaias 11/8/2024 to follow home.html structure with particles and consistent logo -->
+<!-- Updated by Isaias 12/3/2024 to include Google Maps integration -->
 
 {% block content %}
 <div class="logo-container">
@@ -51,7 +51,52 @@
         <br><h2>Your Local Library has been removed from the network, please select a new Local Library</h2>
         {% endif %}
 
-        <script>loadLibraryDropdown();</script>
+        <!-- Map container -->
+        <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
+        <!-- Load Google Maps API -->
+        <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_key }}&callback=initMap">
+        </script>
+        <script>
+            let map, marker;
+
+            // Initialize the map with default coordinates
+            function initMap() {
+                const defaultLocation = { lat: 30.44306034843453, lng: -84.29499019992272 }; // Default to Strozier Library @ FSU
+                map = new google.maps.Map(document.getElementById("map"), {
+                    center: defaultLocation,
+                    zoom: 17, // this zoom lets us see a decent amount of surrounding area with the library too
+                    mapTypeId: "satellite", // defaults the map to sat imagery instead of the usual map view
+                });
+                marker = new google.maps.Marker({
+                    position: defaultLocation,
+                    map: map,
+                });
+
+                // Event listener for library selection dropdown
+                const dropdown = document.querySelector('.libraryDropdown');
+                dropdown.addEventListener('change', async function () {
+                const libraryName = dropdown.value;
+                const defaultLocation = { lat: 30.44306034843453, lng: -84.29499019992272 }; // Strozier Library
+                if (libraryName) {
+                     try {
+                          const response = await fetch('/libraryCoordinates');
+                          const libraries = await response.json();
+                          const coords = libraries[libraryName];
+                           const newPosition = coords ? { lat: coords.lat, lng: coords.lng } : defaultLocation;
+                         map.setCenter(newPosition);
+                           marker.setPosition(newPosition);
+                      } catch (error) {
+                          console.error("Error fetching library coordinates:", error);
+                            map.setCenter(defaultLocation);
+                           marker.setPosition(defaultLocation);
+        }
+    }
+});
+
+            }
+        </script>
+
         <div class="content">
             <form action="{{ url_for('changeLibrary') }}" method="POST">
                 Select New Local Library:
@@ -63,10 +108,9 @@
             </form>
         </div>
 
-        <!-- a href = anchor, creates link to route in quotes. both /enternew and /list
-             have routes defined in newHospitalUsers program, which route to corresponding htmls -->
-<h2><a href="/">Go back to home page</a></h2>
-<h2><a href="/logout">Log out</a></h2>
+        <!-- Navigation links -->
+        <h2><a href="/">Go back to home page</a></h2>
+        <h2><a href="/logout">Log out</a></h2>
 
     {% endif %}
 </div>

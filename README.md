@@ -78,10 +78,20 @@
 - Updated style.css to include gold hyperlink as well as wide input-field styling
 - Updated 3 templates (list, addLibrary & listLibraries) to extend from base.html as well as follow the current UI
 - Written by Isaias
-- 
+
+
 <h3>Update (December 3rd):</h3>
 
 - Updated style.css to include large text area
 - Updated remaining templates (to date) to extend from base.html as well as follow the current UI
+- Written by Isaias
+
+<h3>Update (December 3rd, 7:30pm):</h3>
+
+- Created Project in the Google Cloud, set up 'Maps JavaScript API' and set up credentials (API key) which is used for this project
+- Saved API key in .txt file in root, which is being read into the project
+- Set default location to the FSU Strozier library (30.44306034843453, -84.29499019992272)
+- Set locations based off of library ID
+- When adding a new library (in addLibrary.html), the user can add one and it will appear in the list but the prompt message would be: "Library successfully created! The Maps Visual will be confirmed manually by the head admin at a later date. Stay tuned!" This happens because the maps visual has to be added manually at this time, and ideally the Google Maps integration would automatically find and place the coordinates for the library, assuming it exists. Right now, all new libraries default to Strozier for the visual.
 - Written by Isaias
 

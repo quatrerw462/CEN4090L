@@ -23,6 +23,28 @@ def create_app() -> Flask:
 app = Flask(__name__)
 
 
+# Reading in the API Key for Google Maps
+def get_google_maps_api_key():
+    with open('GMAPS_KEY.txt', 'r') as file:
+        return file.read().strip()
+
+GOOGLE_MAPS_API_KEY = get_google_maps_api_key()
+
+
+# December 3rd - Isaias Quintero
+# Google Maps integration and library location coordinates
+# Any other locations would be added manually, and though this isn't as efficient, it's what works right now
+@app.route('/libraryCoordinates', methods=['GET'])
+def get_library_coordinates():
+    libraries = {
+        'Florida Bay County Library': {'lat': 30.168766402005918, 'lng': -85.67267684156133},
+        'Homestead Public Library': {'lat': 25.475735637116777, 'lng': -80.46685750928418},
+        'Key Largo Library': {'lat': 25.11286993925325, 'lng': -80.41979818982614},
+        'Everglades City Library': {'lat': 25.857969187716723, 'lng': -81.38449944562407},
+    }
+    return jsonify(libraries)
+
+
 
 # definition of home page, return home.html
 @app.route('/')
@@ -672,7 +694,7 @@ def addLib():
             return redirect(url_for('addLibForm'))
         finally:
             con.close()
-            flash("Library successfully created!")
+            flash("Library successfully created! The Maps Visual will be confirmed manually by the head admin at a later date. Stay tuned!")
             return redirect(url_for('showLibs'))
 
     else:
@@ -1045,7 +1067,7 @@ def changeLibrary():
                 return render_template("result.html", msg=message)
                 con.close()
 
-        return render_template('changeLibrary.html')
+        return render_template("changeLibrary.html", google_maps_key=GOOGLE_MAPS_API_KEY)
 
 
 # November 3rd update - Josh Knorr
